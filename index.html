@@ -159,12 +159,13 @@
     </div>
 
     <script>
+        // 1. 替换现有的 patients 数组，新增 hasImage 字段标记是否有影像
         let patients = [
-            { id: 'p001', recordNo: 'BL-2026-0418', name: '李*华', project: '乳腺癌 - 乳腺穿刺活检 (HE)', time: '2026-04-24 14:20', status: 'analyzed', severity: 3 },
-            { id: 'p002', recordNo: 'BL-2026-0412', name: '王*强', project: '胃癌 - 胃黏膜活检', time: '2026-04-23 10:05', status: 'analyzing', severity: null },
-            { id: 'p003', recordNo: 'BL-2026-0409', name: '陈*宁', project: '肺癌 - 肺组织病理切片', time: '2026-04-22 09:40', status: 'unanalyzed', severity: null },
-            { id: 'p004', recordNo: 'BL-2026-0401', name: '赵*兰', project: '肝癌 - 肝穿刺组织学检查', time: '2026-04-20 16:30', status: 'analyzed', severity: 2 },
-            { id: 'p005', recordNo: 'BL-2026-0328', name: '周*凯', project: '前列腺癌 - 前列腺穿刺活检', time: '2026-04-18 08:20', status: 'analyzed', severity: 4 }
+            { id: 'p001', recordNo: 'BL-2026-0418', name: '李*华', project: '乳腺癌 - 乳腺穿刺活检 (HE)', time: '2026-04-24 14:20', status: 'analyzed', severity: 3, hasImage: true },
+            { id: 'p002', recordNo: 'BL-2026-0412', name: '王*强', project: '胃癌 - 胃黏膜活检', time: '2026-04-23 10:05', status: 'analyzing', severity: null, hasImage: true },
+            { id: 'p003', recordNo: 'BL-2026-0409', name: '陈*宁', project: '肺癌 - 肺组织病理切片', time: '2026-04-22 09:40', status: 'unanalyzed', severity: null, hasImage: false }, // 模拟未上传影像的患者
+            { id: 'p004', recordNo: 'BL-2026-0401', name: '赵*兰', project: '肝癌 - 肝穿刺组织学检查', time: '2026-04-20 16:30', status: 'analyzed', severity: 2, hasImage: true },
+            { id: 'p005', recordNo: 'BL-2026-0328', name: '周*凯', project: '前列腺癌 - 前列腺穿刺活检', time: '2026-04-18 08:20', status: 'analyzed', severity: 4, hasImage: true }
         ];
 
         let currentEditingId = null;
@@ -194,6 +195,7 @@
             });
         }
 
+        // 2. 替换现有的 renderTable 函数
         function renderTable() {
             const list = getFilteredPatients();
             tableBody.innerHTML = '';
@@ -203,13 +205,14 @@
             } else {
                 emptyState.classList.add('hidden');
                 list.forEach((item) => {
+                    // 状态渲染保留，纯静态展示
                     let statusHtml = '';
                     if (item.status === 'unanalyzed') {
                         statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-500 text-xs font-bold border border-slate-200"><i class="fas fa-clock"></i> 未分析</span>`;
                     } else if (item.status === 'analyzing') {
                         statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200"><i class="fas fa-spinner fa-spin"></i> 分析中</span>`;
                     } else if (item.status === 'analyzed') {
-                        statusHtml = `<a href="analyze.html?patient=${encodeURIComponent(item.id)}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 hover:shadow-sm transition cursor-pointer text-decoration-none"><i class="fas fa-check-circle"></i> 已分析 (进入)</a>`;
+                        statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-200"><i class="fas fa-check-circle"></i> 已分析</span>`;
                     }
 
                     let severityHtml = '<span class="text-slate-400">-</span>';
@@ -221,6 +224,8 @@
 
                     const tr = document.createElement('tr');
                     tr.className = 'border-b border-slate-100 hover:bg-blue-50/40 transition';
+                    
+                    // 核心逻辑变更：用 item.hasImage 控制是否可进入诊断
                     tr.innerHTML = `
                         <td class="px-6 py-4 text-slate-700 font-mono">${item.recordNo}</td>
                         <td class="px-6 py-4 text-slate-700 font-bold">${item.name}</td>
@@ -229,7 +234,13 @@
                         <td class="px-6 py-4">${statusHtml}</td>
                         <td class="px-6 py-4">${severityHtml}</td>
                         <td class="px-6 py-4">
-                            <button onclick="openModal('${item.id}')" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rounded hover:bg-slate-50 hover:text-blue-600 transition text-xs font-medium shadow-sm"><i class="fas fa-folder-plus mr-1"></i>归档影像</button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openModal('${item.id}')" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rounded hover:bg-slate-50 hover:text-blue-600 transition text-xs font-medium shadow-sm whitespace-nowrap"><i class="fas fa-folder-plus mr-1"></i>归档影像</button>
+                                ${item.hasImage 
+                                    ? `<a href="analyze.html?patient=${encodeURIComponent(item.id)}" class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs font-medium shadow-sm flex items-center whitespace-nowrap"><i class="fas fa-microscope mr-1"></i>进入诊断</a>` 
+                                    : `<button disabled class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded cursor-not-allowed text-xs font-medium border border-slate-200 flex items-center whitespace-nowrap" title="缺少影像文件"><i class="fas fa-image text-slate-300 mr-1"></i>无影像</button>`
+                                }
+                            </div>
                         </td>
                     `;
                     tableBody.appendChild(tr);

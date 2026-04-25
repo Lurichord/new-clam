@@ -39,8 +39,11 @@
     <nav class="h-14 bg-navbg text-white flex items-center justify-between px-4 sm:px-6 shadow-md z-30 shrink-0">
         <div class="flex items-center gap-3">
             <a href="index.html" class="text-blue-200 hover:text-white transition p-2 rounded hover:bg-white/10" title="返回病例列表"><i class="fas fa-arrow-left"></i></a>
-            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner"><i class="fas fa-microscope text-white text-lg"></i></div>
-            <h1 class="text-xl font-bold tracking-wide">医学影像智能分析系统</h1>
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner"><i class="fas fa-hospital text-white text-lg"></i></div>
+            <div class="flex flex-col">
+                <h1 class="text-lg font-bold leading-none tracking-wide">某某大学附属医院</h1>
+                <span class="text-xs text-blue-200 font-medium mt-1">智慧病理科 - 影像诊断中心</span>
+            </div>
         </div>
         <div class="flex items-center gap-3 cursor-pointer hover:bg-blue-800 p-1.5 rounded transition">
             <img src="https://ui-avatars.com/api/?name=Dr.+Wang&background=1d4ed8&color=fff" alt="User" class="w-8 h-8 rounded-full border-2 border-blue-300">
@@ -52,8 +55,8 @@
         </div>
     </nav>
 
-    <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 text-sm shrink-0 shadow-sm z-20">
-        <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
+    <div class="h-12 bg-white border-b border-slate-200 flex items-center px-4 sm:px-6 text-sm shrink-0 shadow-sm z-20 w-full overflow-hidden">
+        <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar w-full">
             <div class="flex items-center gap-2 whitespace-nowrap">
                 <div class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs"><i class="fas fa-user-injured"></i></div>
                 <span id="pi-name" class="font-bold text-slate-800 text-base">加载中...</span>
@@ -66,9 +69,13 @@
             <div class="whitespace-nowrap"><span class="text-slate-400 mr-1.5"><i class="fas fa-vial"></i> 检查项目:</span><span id="pi-exam" class="font-medium text-slate-700"></span></div>
             <div class="h-4 w-px bg-slate-300 hidden md:block"></div>
             <div class="whitespace-nowrap hidden md:block"><span class="text-slate-400 mr-1.5"><i class="far fa-clock"></i> 送检时间:</span><span id="pi-time" class="font-medium text-slate-700"></span></div>
-        </div>
-        <div class="shrink-0 ml-4">
-            <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 shadow-sm flex items-center gap-1.5"><i class="fas fa-check-circle"></i> CANPRED 解析完毕</span>
+            
+            <div class="h-4 w-px bg-slate-300 hidden md:block"></div>
+            <div class="shrink-0" id="pi-status-container">
+                <span id="pi-status-tag" class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 flex items-center gap-1">
+                    <i class="fas fa-check-circle"></i> AI 解析完毕
+                </span>
+            </div>
         </div>
     </div>
 
@@ -183,15 +190,24 @@
                 <div id="tab-rep" class="tab-content hidden absolute inset-0 overflow-y-auto p-4 flex flex-col">
                     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-1 flex flex-col">
                         <h3 class="font-bold text-slate-700 text-sm mb-3">大语言模型结构化报告</h3>
+                        
                         <button id="btnGenerateReport" onclick="startTypingReport()" class="w-full py-2.5 mb-3 bg-primary text-white rounded-lg shadow hover:bg-blue-700 active:bg-blue-800 transition font-bold text-sm flex items-center justify-center">
                             <i class="fas fa-magic mr-2"></i> 结合指标一键生成草案
                         </button>
-                        <div class="flex-1 bg-slate-50 rounded-lg p-4 border border-slate-200 shadow-inner overflow-y-auto relative group">
-                            <p id="reportText" class="text-sm leading-7 text-slate-700 whitespace-pre-wrap font-serif"></p>
-                        </div>
-                        <div id="reportActions" class="hidden mt-3 pt-3 border-t border-slate-100">
-                            <button class="w-full py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold text-sm hover:bg-emerald-100 transition shadow-sm">
-                                <i class="fas fa-file-signature mr-2"></i>医生签名确认并签发
+                        
+                        <textarea id="reportText" class="flex-1 w-full bg-slate-50 rounded-lg p-4 border border-slate-200 shadow-inner overflow-y-auto text-sm leading-7 text-slate-700 font-serif resize-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="点击上方按钮生成报告草案，生成后可在此手动编辑修改..."></textarea>
+
+                        <div id="reportActions" class="hidden mt-3 pt-3 border-t border-slate-100 flex-col gap-3">
+                            <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded border border-slate-100">
+                                <span class="text-xs text-slate-500">您觉得 AI 生成内容的帮助大吗？</span>
+                                <div class="flex gap-2">
+                                    <button onclick="toggleFeedback(this, 'up')" class="feedback-btn text-slate-400 hover:text-emerald-500 transition px-2 py-1 bg-white rounded border border-slate-200 shadow-sm" title="有帮助"><i class="fas fa-thumbs-up"></i></button>
+                                    <button onclick="toggleFeedback(this, 'down')" class="feedback-btn text-slate-400 hover:text-red-500 transition px-2 py-1 bg-white rounded border border-slate-200 shadow-sm" title="帮助不大"><i class="fas fa-thumbs-down"></i></button>
+                                </div>
+                            </div>
+                            
+                            <button id="btnConfirmReport" onclick="showConfirmModal()" class="w-full py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold text-sm hover:bg-emerald-100 transition shadow-sm">
+                                <i class="fas fa-file-signature mr-2"></i>核实无误，进入签发
                             </button>
                         </div>
                     </section>
@@ -201,13 +217,29 @@
     </main>
 
     <footer class="h-14 bg-white border-t border-slate-200 flex items-center justify-between px-4 sm:px-6 shrink-0 z-20 shadow-[0_-2px_4px_rgba(0,0,0,0.02)]">
-        <div class="text-sm text-slate-500">
-            当前诊断进度: <span id="patientTag" class="font-medium text-slate-700">-</span>
+        <div class="text-sm text-slate-500 flex items-center">
+            当前诊断进度: <span id="progressTag" class="font-bold text-slate-700 ml-2 tracking-wide transition-colors duration-300">调阅影像与阅片中...</span>
         </div>
-        <button id="btnExportPdf" class="px-4 py-2 bg-primary text-white rounded-md shadow hover:bg-blue-700 transition text-sm font-medium flex items-center">
+        <button id="btnExportPdf" disabled class="px-4 py-2 bg-slate-300 text-white rounded-md shadow cursor-not-allowed transition text-sm font-medium flex items-center" title="请先在右侧完成报告签发">
             <i class="fas fa-file-export mr-2"></i>导出病例报告（PDF）
         </button>
     </footer>
+
+    <div id="signatureModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl mx-auto mb-4">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 text-center mb-2">确认签发本报告？</h3>
+                <p class="text-sm text-slate-500 text-center mb-4">签发后，该诊断报告将归档并允许导出 PDF，您确定报告内容已经过人工核实吗？</p>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2 bg-white border border-slate-300 rounded shadow-sm text-sm text-slate-600 hover:bg-slate-50 transition">返回修改</button>
+                <button onclick="finalizeSignature()" class="flex-1 py-2 bg-emerald-600 rounded shadow-sm text-sm text-white font-medium hover:bg-emerald-700 transition">确认签发</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ----------------------------------------------------
@@ -585,48 +617,261 @@
             btn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
         }
 
+        // ==========================================
+        // 报告生成与交互逻辑
+        // ==========================================
         let typeTimer;
         function startTypingReport() {
             const btn = document.getElementById('btnGenerateReport');
             const actions = document.getElementById('reportActions');
+            const reportText = document.getElementById('reportText');
             const fullText = patient.report;
             
+            // 变更进度状态：正在生成
+            updateProgress('大模型推理与报告撰写中...', 'active');
+
             btn.disabled = true;
             btn.classList.remove('bg-primary', 'hover:bg-blue-700');
             btn.classList.add('bg-blue-400', 'cursor-not-allowed');
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> 大模型推理并撰写中...';
-            reportText.innerHTML = '';
+            reportText.value = '';
             actions.classList.add('hidden');
+            
+            document.getElementById('btnConfirmReport').innerHTML = '<i class="fas fa-file-signature mr-2"></i>核实无误，进入签发';
+            document.getElementById('btnConfirmReport').className = 'w-full py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold text-sm hover:bg-emerald-100 transition shadow-sm';
+            document.getElementById('btnConfirmReport').disabled = false;
+            
+            document.getElementById('btnExportPdf').disabled = true;
+            document.getElementById('btnExportPdf').className = 'px-4 py-2 bg-slate-300 text-white rounded-md shadow cursor-not-allowed transition text-sm font-medium flex items-center';
+            document.getElementById('btnExportPdf').title = "请先在右侧完成报告签发";
+
+            document.querySelectorAll('.feedback-btn').forEach(b => {
+                b.classList.remove('text-emerald-500', 'text-red-500', 'border-emerald-300', 'border-red-300');
+                b.classList.add('text-slate-400');
+            });
             
             let i = 0;
             clearInterval(typeTimer);
-            const cursorHtml = '<span id="typingCursor" class="inline-block w-1.5 h-3.5 bg-blue-600 ml-1 mb-0.5 animate-pulse align-baseline"></span>';
             
             typeTimer = setInterval(() => {
-                reportText.innerHTML = fullText.substring(0, i) + cursorHtml;
+                let currentText = fullText.substring(0, i);
+                let textCursor = (i % 2 === 0) ? '|' : ''; 
+                
+                reportText.value = currentText + (i < fullText.length ? textCursor : '');
                 i++;
-                const container = reportText.parentElement;
-                container.scrollTop = container.scrollHeight;
+                reportText.scrollTop = reportText.scrollHeight;
+                
                 if (i > fullText.length) {
                     clearInterval(typeTimer);
-                    document.getElementById('typingCursor')?.remove();
+                    reportText.value = fullText; 
                     btn.disabled = false;
                     btn.classList.remove('bg-blue-400', 'cursor-not-allowed');
                     btn.classList.add('bg-primary', 'hover:bg-blue-700', 'active:bg-blue-800'); 
-                    btn.innerHTML = '<i class="fas fa-redo mr-2"></i> 重新生成评估报告';
+                    btn.innerHTML = '<i class="fas fa-redo mr-2"></i> 重新生成草案';
                     actions.classList.remove('hidden');
+                    
+                    // 变更进度状态：生成完毕等待核实
+                    updateProgress('草案已生成，等待人工核实签发', 'normal');
                 }
             }, 25);
         }
 
+        // 大拇指反馈交互
+        function toggleFeedback(btn, type) {
+            document.querySelectorAll('.feedback-btn').forEach(b => {
+                b.classList.remove('text-emerald-500', 'text-red-500', 'border-emerald-300', 'border-red-300');
+                b.classList.add('text-slate-400');
+            });
+            if (type === 'up') {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('text-emerald-500', 'border-emerald-300');
+            } else {
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('text-red-500', 'border-red-300');
+            }
+        }
+
+        // 增量：全局诊断进度状态控制器
+        function updateProgress(text, state = 'normal') {
+            const tag = document.getElementById('progressTag');
+            tag.textContent = text;
+            
+            // 清除旧颜色
+            tag.classList.remove('text-slate-700', 'text-blue-600', 'text-emerald-600');
+            
+            // 根据状态赋予新颜色
+            if (state === 'normal') tag.classList.add('text-slate-700');
+            if (state === 'active') tag.classList.add('text-blue-600'); // 运行中高亮蓝
+            if (state === 'success') tag.classList.add('text-emerald-600'); // 完成后高亮绿
+        }
+
+        // 二级确认弹窗控制
+        function showConfirmModal() {
+            document.getElementById('signatureModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('signatureModal').classList.add('hidden');
+        }
+
+        // 签发完成逻辑
+        function finalizeSignature() {
+            closeConfirmModal();
+            
+            // 变更进度状态：最终完成
+            updateProgress('诊断完成，电子报告已签发', 'success');
+
+            const btnConfirm = document.getElementById('btnConfirmReport');
+            btnConfirm.innerHTML = '<i class="fas fa-check-double mr-2"></i>已完成电子签发';
+            btnConfirm.className = 'w-full py-2 bg-slate-100 text-slate-500 border border-slate-200 rounded-lg font-bold text-sm cursor-not-allowed shadow-inner';
+            btnConfirm.disabled = true;
+
+            const btnExport = document.getElementById('btnExportPdf');
+            btnExport.disabled = false;
+            btnExport.className = 'px-4 py-2 bg-primary text-white rounded-md shadow hover:bg-blue-700 transition text-sm font-medium flex items-center';
+            btnExport.title = "导出最新 PDF 报告";
+        }
+
+        function renderAiModules() {
+            gradeText.textContent = patient.grade;
+            survivalText.textContent = patient.survival;
+            diagnosisText.textContent = patient.diagnosis;
+            document.getElementById('reportText').value = ""; 
+
+            // 初始化进度状态
+            updateProgress('调阅影像与阅片中...', 'normal');
+
+            similarList.innerHTML = '';
+            patient.similar.forEach((item, index) => {
+                const isTop = index === 0;
+                const block = document.createElement('div');
+                // 关键改动：relative 和 group 类，用于控制内部按键的显示
+                block.className = 'rounded-lg border border-slate-200 px-3 py-3 bg-slate-50/60 hover:bg-white hover:shadow-md transition relative overflow-hidden group';
+                if (isTop) block.classList.add('border-l-4', 'border-l-indigo-500', 'bg-indigo-50/30');
+
+                block.innerHTML = `
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-mono text-slate-600 font-medium">
+                            ${isTop ? '<i class="fas fa-crown text-amber-500 mr-1"></i>' : '<i class="fas fa-history text-slate-400 mr-1"></i>'}
+                            ${item.caseNo}
+                        </span>
+                        <span class="text-indigo-600 font-bold bg-indigo-100 px-1.5 py-0.5 rounded">相似度 ${item.score}</span>
+                    </div>
+                    <p class="text-xs leading-relaxed text-slate-700 pr-8">${item.summary}</p>
+                    
+                    <button onclick="viewHistoricalReport('${item.caseNo}')" 
+                            class="absolute right-2 bottom-2 w-8 h-8 flex items-center justify-center bg-white border border-slate-200 rounded-full text-primary shadow-sm hover:bg-primary hover:text-white transition-all opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0" 
+                            title="调阅原始报告">
+                        <i class="fas fa-external-link-alt text-[10px]"></i>
+                    </button>
+                `;
+                similarList.appendChild(block);
+            });
+        }
+
         renderAiModules();
 
+        // 导出功能
         document.getElementById('btnExportPdf').addEventListener('click', () => {
+            const currentReport = document.getElementById('reportText').value;
             const popup = window.open('', '_blank');
-            popup.document.write(`<html><head><title>病例报告</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h1>病例报告 ${patient.recordNo}</h1><p>${patient.report.replace(/\n/g,'<br>')}</p></body></html>`);
+            popup.document.write(`
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8"><title>病例报告-${patient.recordNo}</title>
+                    <style>
+                        body{font-family:'Microsoft YaHei',sans-serif;padding:30px;color:#333;line-height:1.6;}
+                        h1{color:#1e3a8a;border-bottom:2px solid #e2e8f0;padding-bottom:10px;}
+                        .info{background:#f8fafc;padding:15px;border-radius:8px;margin-bottom:20px;font-size:14px;}
+                        .report-body{font-size:14px; white-space: pre-wrap;}
+                        .sign{margin-top:50px;text-align:right;}
+                    </style>
+                </head>
+                <body>
+                    <h1>智慧病理科 - 电子诊断报告</h1>
+                    <div class="info">
+                        <p><strong>患者:</strong> ${patient.name} &nbsp;&nbsp;&nbsp; <strong>病历号:</strong> ${patient.recordNo}</p>
+                        <p><strong>性别/年龄:</strong> ${patient.gender} / ${patient.age} &nbsp;&nbsp;&nbsp; <strong>检查:</strong> ${patient.exam}</p>
+                    </div>
+                    <h3>大模型辅助诊断草案（经医师核实）：</h3>
+                    <div class="report-body">${currentReport}</div>
+                    <div class="sign">
+                        <p>核实医师签名：Dr. Wang</p>
+                        <p>日期：${new Date().toLocaleDateString()}</p>
+                    </div>
+                </body>
+                </html>
+            `);
             popup.document.close();
-            setTimeout(() => popup.print(), 200);
+            setTimeout(() => popup.print(), 300);
         });
+
+        // 增量：历史病例详情模拟数据
+        const historicalReports = {
+            'SIM-2025-117': {
+                diagnosis: '浸润性导管癌 (III 级)',
+                findings: '切片见异型上皮细胞呈实性片状及不规则巢状浸润生长，间质纤维组织显著增生。',
+                markers: 'ER(-), PR(-), HER2(3+), Ki-67(60%+)',
+                opinion: '典型的 HER2 阳性浸润性癌，建议靶向联合化疗。'
+            },
+            'SIM-2025-068': {
+                diagnosis: '高级别导管原位癌',
+                findings: '导管高度扩张，腔内见大片坏死（粉刺样），上皮细胞异型性显著。',
+                markers: 'ER(2+), PR(1+), HER2(1+)',
+                opinion: '病灶触发粉刺样坏死预警，需警惕局部微浸润。'
+            }
+            // 可在此继续扩展...
+        };
+
+        function viewHistoricalReport(caseNo) {
+            const data = historicalReports[caseNo] || { diagnosis: '暂无详细记录', findings: '该历史病例仅保留摘要，详细切片数据已离线。', markers: '-', opinion: '-' };
+            const container = document.getElementById('histContent');
+            document.getElementById('histTitle').textContent = `历史病例详情 - ${caseNo}`;
+            
+            container.innerHTML = `
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                    <p class="text-xs text-indigo-500 font-bold mb-1 uppercase">最终确诊结果</p>
+                    <p class="text-base font-bold text-slate-800">${data.diagnosis}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-5">
+                    <section>
+                        <h4 class="text-xs font-bold text-slate-500 mb-2 border-l-2 border-slate-300 pl-2">病理描述 (Findings)</h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">${data.findings}</p>
+                    </section>
+                    <section>
+                        <h4 class="text-xs font-bold text-slate-500 mb-2 border-l-2 border-slate-300 pl-2">免疫组化 (Markers)</h4>
+                        <div class="bg-slate-50 p-2 rounded font-mono text-xs text-slate-600">${data.markers}</div>
+                    </section>
+                    <section>
+                        <h4 class="text-xs font-bold text-slate-500 mb-2 border-l-2 border-slate-300 pl-2">专家处理意见</h4>
+                        <p class="text-sm text-slate-700 italic">${data.opinion}</p>
+                    </section>
+                </div>
+            `;
+            document.getElementById('historyDetailModal').classList.remove('hidden');
+        }
+
+        function closeHistModal() {
+            document.getElementById('historyDetailModal').classList.add('hidden');
+        }
     </script>
+    <div id="historyDetailModal" class="hidden fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-file-invoice text-primary"></i>
+                    <h3 class="text-lg font-bold text-slate-800" id="histTitle">历史病例详细报告</h3>
+                </div>
+                <button onclick="closeHistModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[70vh] space-y-6">
+                <div id="histContent" class="space-y-4">
+                    </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="closeHistModal()" class="px-6 py-2 bg-primary text-white rounded-lg shadow hover:bg-blue-700 transition font-medium text-sm">已阅并返回</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
