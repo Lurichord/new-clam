@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>病例管理 - 医学影像智能分析系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1d4ed8',
+                        navbg: '#1e3a8a',
+                        surface: '#eef2ff'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'Microsoft YaHei', 'Segoe UI', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(180deg, #e9efff 0%, #f4f7ff 40%, #f8fafc 100%);
+        }
+
+        .frost-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans min-h-screen flex flex-col">
+    <nav class="h-14 bg-navbg text-white flex items-center justify-between px-4 sm:px-6 shadow-md z-30 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner">
+                <i class="fas fa-microscope text-white text-lg"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-wide">医学影像智能分析系统</h1>
+        </div>
+
+        <div class="flex items-center gap-3 cursor-pointer hover:bg-blue-800 p-1.5 rounded transition">
+            <img src="https://ui-avatars.com/api/?name=Dr.+Wang&background=1d4ed8&color=fff" alt="User" class="w-8 h-8 rounded-full border-2 border-blue-300">
+            <div class="flex flex-col hidden sm:flex">
+                <span class="text-sm font-semibold leading-none text-white">Dr. Wang</span>
+                <span class="text-xs text-blue-200 mt-1">病理科主任</span>
+            </div>
+            <i class="fas fa-chevron-down text-xs text-blue-300 ml-1"></i>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <section class="max-w-7xl mx-auto frost-card rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-blue-50/60 to-indigo-50/60">
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between gap-4 flex-wrap">
+                        <h2 class="text-xl font-bold text-slate-700">病例队列管理</h2>
+                        <span id="summary" class="text-sm text-slate-500">共 0 条病例</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                        <div class="relative xl:col-span-1">
+                            <i class="fas fa-id-card absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input id="filterRecord" type="text" placeholder="病历号" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="relative xl:col-span-1">
+                            <i class="fas fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input id="filterName" type="text" placeholder="患者姓名" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="relative xl:col-span-1">
+                            <i class="fas fa-vial absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input id="filterExam" type="text" placeholder="检查项目" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="relative xl:col-span-1">
+                            <i class="fas fa-calendar-day absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input id="filterTime" type="text" placeholder="时间(如 2026-04)" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button id="btnReset" class="xl:col-span-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+                            <i class="fas fa-rotate-left mr-2"></i>清空筛选
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[880px]">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                            <th class="px-6 py-4 font-medium">病历号</th>
+                            <th class="px-6 py-4 font-medium">患者姓名</th>
+                            <th class="px-6 py-4 font-medium">检查项目</th>
+                            <th class="px-6 py-4 font-medium">检查时间</th>
+                            <th class="px-6 py-4 font-medium">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-sm"></tbody>
+                </table>
+            </div>
+
+            <div id="emptyState" class="hidden p-10 text-center text-slate-500 border-t border-slate-100">
+                <i class="fas fa-folder-open text-2xl text-slate-300 mb-3"></i>
+                <p>暂无匹配病例，请调整筛选条件。</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const patients = [
+            { id: 'p001', recordNo: 'BL-2026-0418', name: '李*华', exam: '乳腺穿刺活检 (HE)', time: '2026-04-24 14:20' },
+            { id: 'p002', recordNo: 'BL-2026-0412', name: '王*强', exam: '胃黏膜活检', time: '2026-04-23 10:05' },
+            { id: 'p003', recordNo: 'BL-2026-0409', name: '陈*宁', exam: '肺组织病理切片', time: '2026-04-22 09:40' },
+            { id: 'p004', recordNo: 'BL-2026-0401', name: '赵*兰', exam: '肝穿刺组织学检查', time: '2026-04-20 16:30' },
+            { id: 'p005', recordNo: 'BL-2026-0328', name: '周*凯', exam: '前列腺穿刺活检', time: '2026-04-18 08:20' }
+        ];
+
+        const tableBody = document.getElementById('tableBody');
+        const summary = document.getElementById('summary');
+        const emptyState = document.getElementById('emptyState');
+        const filterRecord = document.getElementById('filterRecord');
+        const filterName = document.getElementById('filterName');
+        const filterExam = document.getElementById('filterExam');
+        const filterTime = document.getElementById('filterTime');
+        const btnReset = document.getElementById('btnReset');
+
+        function parseDate(v) {
+            return new Date(v.replace(' ', 'T')).getTime();
+        }
+
+        function sortedPatients(list) {
+            return [...list].sort((a, b) => parseDate(b.time) - parseDate(a.time));
+        }
+
+        function getFilteredPatients() {
+            const qRecord = filterRecord.value.trim().toLowerCase();
+            const qName = filterName.value.trim().toLowerCase();
+            const qExam = filterExam.value.trim().toLowerCase();
+            const qTime = filterTime.value.trim().toLowerCase();
+
+            return sortedPatients(patients).filter((item) => {
+                const okRecord = item.recordNo.toLowerCase().includes(qRecord);
+                const okName = item.name.toLowerCase().includes(qName);
+                const okExam = item.exam.toLowerCase().includes(qExam);
+                const okTime = item.time.toLowerCase().includes(qTime);
+                return okRecord && okName && okExam && okTime;
+            });
+        }
+
+        function renderTable() {
+            const list = getFilteredPatients();
+            tableBody.innerHTML = '';
+
+            if (!list.length) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                list.forEach((item) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-slate-100 hover:bg-blue-50/40 transition';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-slate-700 font-mono">${item.recordNo}</td>
+                        <td class="px-6 py-4 text-slate-700">${item.name}</td>
+                        <td class="px-6 py-4 text-slate-700">${item.exam}</td>
+                        <td class="px-6 py-4 text-slate-600">${item.time}</td>
+                        <td class="px-6 py-4">
+                            <a href="analyze.html?patient=${encodeURIComponent(item.id)}" class="inline-block px-4 py-2 bg-primary text-white rounded-md shadow hover:bg-blue-700 transition font-medium">进入分析</a>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            summary.textContent = `共 ${list.length} 条病例`;
+        }
+
+        [filterRecord, filterName, filterExam, filterTime].forEach((el) => {
+            el.addEventListener('input', renderTable);
+        });
+
+        btnReset.addEventListener('click', () => {
+            filterRecord.value = '';
+            filterName.value = '';
+            filterExam.value = '';
+            filterTime.value = '';
+            renderTable();
+        });
+
+        renderTable();
+    </script>
+</body>
+</html>

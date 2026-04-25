@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>病例分析 - 医学影像智能分析系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1d4ed8',
+                        navbg: '#1e3a8a'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'Microsoft YaHei', 'Segoe UI', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --left-panel-width: 300px;
+            --right-panel-width: 360px;
+        }
+
+        body {
+            background: linear-gradient(180deg, #e9efff 0%, #eff4ff 45%, #f8fafc 100%);
+        }
+
+        .viewer-bg {
+            background-color: #0f172a;
+            background-image:
+                linear-gradient(45deg, rgba(148, 163, 184, 0.14) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(148, 163, 184, 0.14) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(148, 163, 184, 0.14) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(148, 163, 184, 0.14) 75%);
+            background-size: 24px 24px;
+            background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+        }
+
+        .panel-translucent {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(6px);
+        }
+
+        #viewer-content {
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+
+        #left-panel {
+            width: var(--left-panel-width);
+        }
+
+        #right-panel {
+            width: var(--right-panel-width);
+        }
+
+        .hidden-panel {
+            width: 0 !important;
+            min-width: 0 !important;
+            border: 0 !important;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        @media (max-width: 1280px) {
+            :root {
+                --left-panel-width: 260px;
+                --right-panel-width: 320px;
+            }
+        }
+
+        @media (max-width: 960px) {
+            :root {
+                --left-panel-width: 220px;
+                --right-panel-width: 260px;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 min-h-screen flex flex-col">
+    <nav class="h-14 bg-navbg text-white flex items-center justify-between px-4 sm:px-6 shadow-md z-30 shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="text-blue-200 hover:text-white transition p-2 rounded hover:bg-white/10" title="返回病例列表">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner">
+                <i class="fas fa-microscope text-white text-lg"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-wide">医学影像智能分析系统</h1>
+        </div>
+
+        <div class="flex items-center gap-3 cursor-pointer hover:bg-blue-800 p-1.5 rounded transition">
+            <img src="https://ui-avatars.com/api/?name=Dr.+Wang&background=1d4ed8&color=fff" alt="User" class="w-8 h-8 rounded-full border-2 border-blue-300">
+            <div class="flex flex-col hidden sm:flex">
+                <span class="text-sm font-semibold leading-none text-white">Dr. Wang</span>
+                <span class="text-xs text-blue-200 mt-1">病理科主任</span>
+            </div>
+            <i class="fas fa-chevron-down text-xs text-blue-300 ml-1"></i>
+        </div>
+    </nav>
+
+    <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 text-sm shrink-0 shadow-sm z-20">
+        <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
+            <div class="flex items-center gap-2 whitespace-nowrap">
+                <div class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <span id="pi-name" class="font-bold text-slate-800 text-base">加载中...</span>
+            </div>
+            <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
+            <div class="whitespace-nowrap"><span class="text-slate-400 mr-1.5"><i class="fas fa-id-card"></i> 病历号:</span><span id="pi-record" class="font-medium text-slate-700"></span></div>
+            <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
+            <div class="whitespace-nowrap"><span class="text-slate-400 mr-1.5"><i class="fas fa-venus-mars"></i> 性别/年龄:</span><span id="pi-demo" class="font-medium text-slate-700"></span></div>
+            <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
+            <div class="whitespace-nowrap"><span class="text-slate-400 mr-1.5"><i class="fas fa-vial"></i> 检查项目:</span><span id="pi-exam" class="font-medium text-slate-700"></span></div>
+            <div class="h-4 w-px bg-slate-300 hidden md:block"></div>
+            <div class="whitespace-nowrap hidden md:block"><span class="text-slate-400 mr-1.5"><i class="far fa-clock"></i> 送检时间:</span><span id="pi-time" class="font-medium text-slate-700"></span></div>
+        </div>
+        
+        <div class="shrink-0 ml-4">
+            <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 shadow-sm flex items-center gap-1.5">
+                <i class="fas fa-check-circle"></i> CANPRED 解析完毕
+            </span>
+        </div>
+    </div>
+
+    <main class="flex-1 flex overflow-hidden min-h-0">
+        <aside id="left-panel" class="panel-translucent border-r border-slate-200 flex flex-col shrink-0 transition-all duration-300">
+            <div class="h-12 px-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+                <h2 class="text-sm font-bold text-slate-700">同病例图像列表</h2>
+                <button id="btnToggleLeft" class="w-8 h-8 rounded hover:bg-slate-200 text-slate-600 transition" title="收起左侧栏">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+            </div>
+
+            <div class="p-4 border-b border-slate-100">
+                <input id="imageUpload" type="file" accept="image/*" multiple class="hidden">
+                <button id="btnUpload" class="w-full py-2.5 rounded-lg border border-dashed border-blue-300 bg-blue-50 text-sm text-blue-700 hover:bg-blue-100 transition shadow-sm">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>本地上传图像
+                </button>
+            </div>
+
+            <div id="imageList" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/30"></div>
+
+            <div class="px-4 py-3 border-t border-slate-200 text-xs text-slate-500 bg-slate-50/50">
+                <span id="imageCount">共 0 张图像</span>
+            </div>
+        </aside>
+
+        <section class="flex-1 min-w-0 flex flex-col">
+            <div class="h-12 bg-white/90 border-b border-slate-200 backdrop-blur flex items-center justify-between px-3 z-10 shadow-sm">
+                <div class="flex items-center gap-1">
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnOpenLeft" title="展开左侧栏" style="display:none;">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <div class="w-px h-6 bg-slate-300 mx-1" id="leftDivider" style="display:none;"></div>
+                    
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="zoomIn" title="放大 (Scroll Up)"><i class="fas fa-search-plus"></i></button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="zoomOut" title="缩小 (Scroll Down)"><i class="fas fa-search-minus"></i></button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="fit" title="适应窗口"><i class="fas fa-compress"></i></button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="actual" title="原始比例 100%"><i class="fas fa-magnifying-glass"></i></button>
+                    
+                    <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="rotateLeft" title="左旋转"><i class="fas fa-undo"></i></button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="rotateRight" title="右旋转"><i class="fas fa-redo"></i></button>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs text-slate-600">
+                    <span class="bg-slate-100 px-2 py-1 rounded">缩放: <strong id="zoomLabel" class="text-primary font-mono">100%</strong></span>
+                    <span class="bg-slate-100 px-2 py-1 rounded">角度: <strong id="rotateLabel" class="text-primary font-mono">0°</strong></span>
+                    <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnToggleRight" title="收起右侧栏">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnOpenRight" title="展开右侧栏" style="display:none;">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="viewer" class="flex-1 min-h-0 relative viewer-bg overflow-hidden cursor-grab active:cursor-grabbing">
+                <div id="viewer-content" class="absolute top-0 left-0 transition-transform duration-75">
+                    <img id="mainImage" src="" alt="WSI 图像" class="max-w-none select-none pointer-events-none shadow-2xl" style="width: 1400px; height: 900px; object-fit: cover;">
+                </div>
+                <div class="absolute left-3 bottom-3 px-3 py-1.5 rounded bg-slate-900/70 text-white text-xs backdrop-blur border border-slate-700/50 shadow-lg font-mono tracking-wider">
+                    X: <span id="coordX" class="text-emerald-400">0000</span> | Y: <span id="coordY" class="text-emerald-400">0000</span>
+                </div>
+            </div>
+        </section>
+
+        <aside id="right-panel" class="panel-translucent border-l border-slate-200 flex flex-col shrink-0 transition-all duration-300">
+            <div class="h-12 px-4 border-b border-slate-200 flex items-center shrink-0 bg-slate-50/50">
+                <h2 class="text-sm font-bold text-slate-700"><i class="fas fa-brain text-primary mr-2"></i>多维度 AI 辅助模块</h2>
+            </div>
+
+            <div class="p-3 border-b border-slate-100 bg-slate-50/80 shrink-0 shadow-sm z-10 relative">
+                <div class="flex bg-slate-200/70 p-1 rounded-lg">
+                    <button onclick="switchTab('tab-ai', this)" class="tab-btn flex-1 py-1.5 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm transition-all">靶向分析</button>
+                    <button onclick="switchTab('tab-sim', this)" class="tab-btn flex-1 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 transition-all">相似病例</button>
+                    <button onclick="switchTab('tab-rep', this)" class="tab-btn flex-1 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 transition-all">诊疗报告</button>
+                </div>
+            </div>
+
+            <div class="flex-1 relative overflow-hidden bg-slate-50/30">
+                
+                <div id="tab-ai" class="tab-content absolute inset-0 overflow-y-auto p-4">
+                    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                        <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                            <h3 class="font-bold text-slate-700 text-sm">病例核心指标</h3>
+                            <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100">CANPRED 引擎</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-lg bg-red-50/50 border border-red-100 p-3 hover:shadow-md transition">
+                                <p class="text-slate-500 text-xs mb-1"><i class="fas fa-exclamation-triangle text-red-400 mr-1"></i>恶性分级预警</p>
+                                <p id="gradeText" class="font-bold text-red-600 text-lg">III 级</p>
+                            </div>
+                            <div class="rounded-lg bg-emerald-50/50 border border-emerald-100 p-3 hover:shadow-md transition">
+                                <p class="text-slate-500 text-xs mb-1"><i class="fas fa-heartbeat text-emerald-400 mr-1"></i>Weibull 预后评估</p>
+                                <p id="survivalText" class="font-bold text-emerald-600 text-lg">78%</p>
+                            </div>
+                            <div class="rounded-lg bg-blue-50/50 border border-blue-100 p-3 col-span-2 hover:shadow-md transition">
+                                <p class="text-slate-500 text-xs mb-1"><i class="fas fa-notes-medical text-blue-400 mr-1"></i>系统初步结论</p>
+                                <p id="diagnosisText" class="font-medium text-slate-700 mt-1 leading-snug">疑似浸润性导管癌，建议进一步免疫组化复核。</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="tab-sim" class="tab-content hidden absolute inset-0 overflow-y-auto p-4">
+                    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 min-h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 shrink-0">
+                            <h3 class="font-bold text-slate-700 text-sm">历史病例召回库</h3>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-100"><i class="fas fa-database mr-1"></i>Milvus 检索</span>
+                        </div>
+                        <div id="similarList" class="space-y-3 flex-1 overflow-y-auto pr-1">
+                            </div>
+                    </section>
+                </div>
+
+                <div id="tab-rep" class="tab-content hidden absolute inset-0 overflow-y-auto p-4 flex flex-col">
+                    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-1 flex flex-col">
+                        <h3 class="font-bold text-slate-700 text-sm mb-3">大语言模型结构化报告</h3>
+                        
+                        <button id="btnGenerateReport" onclick="startTypingReport()" class="w-full py-2.5 mb-3 bg-primary text-white rounded-lg shadow hover:bg-blue-700 active:bg-blue-800 transition font-bold text-sm flex items-center justify-center">
+                            <i class="fas fa-magic mr-2"></i> 结合指标一键生成草案
+                        </button>
+                        
+                        <div class="flex-1 bg-slate-50 rounded-lg p-4 border border-slate-200 shadow-inner overflow-y-auto relative group">
+                            <div class="absolute top-2 right-2 hidden group-hover:block transition">
+                                <button class="w-6 h-6 bg-white border border-slate-200 rounded text-slate-400 hover:text-blue-600 shadow-sm flex items-center justify-center" title="复制内容"><i class="far fa-copy text-xs"></i></button>
+                            </div>
+                            <p id="reportText" class="text-sm leading-7 text-slate-700 whitespace-pre-wrap font-serif"></p>
+                        </div>
+
+                        <div id="reportActions" class="hidden mt-3 pt-3 border-t border-slate-100">
+                            <button class="w-full py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold text-sm hover:bg-emerald-100 transition shadow-sm">
+                                <i class="fas fa-file-signature mr-2"></i>医生签名确认并签发
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="h-14 bg-white border-t border-slate-200 flex items-center justify-between px-4 sm:px-6 shrink-0 z-20 shadow-[0_-2px_4px_rgba(0,0,0,0.02)]">
+        <div class="text-sm text-slate-500">
+            当前诊断进度: <span id="patientTag" class="font-medium text-slate-700">-</span>
+        </div>
+        <button id="btnExportPdf" class="px-4 py-2 bg-primary text-white rounded-md shadow hover:bg-blue-700 transition text-sm font-medium flex items-center">
+            <i class="fas fa-file-export mr-2"></i>导出病例报告（PDF）
+        </button>
+    </footer>
+
+    <script>
+        // 扩展患者数据，补全了所有5个病人的数据，确保从 index.html 点击任何一个都不会失效
+        const patients = {
+            p001: {
+                recordNo: 'BL-2026-0418',
+                name: '李*华',
+                gender: '女',
+                age: '45岁',
+                exam: '乳腺穿刺活检 (HE)',
+                time: '2026-04-24 14:20',
+                grade: 'III 级',
+                survival: '78%',
+                diagnosis: '疑似浸润性导管癌，建议进一步免疫组化复核。',
+                report: '【镜下所见】\n本次HE切片中可见异型性明显的上皮样细胞，呈巢状及索状浸润生长。细胞核大深染，核浆比例失调，伴局灶坏死与周边间质纤维组织增生反应。\n\n【AI 辅助诊断意见】\n结合 CANPRED 模型提取的细胞密度、核异型性评分与病灶空间分布特征，当前切片触发高风险预警阈值。系统比对 Milvus 历史病例库，特征向量倾向为「浸润性导管癌」。\n\n【临床建议】\n建议结合免疫组化相关指标（ER、PR、HER2、Ki-67）以明确分子分型；同时建议复查患者临床影像学资料，进行进一步的分期与预后评估。',
+                similar: [
+                    { caseNo: 'SIM-2025-117', score: '96.2%', summary: '病灶空间分布高度相似。历史最终诊断：浸润性导管癌 II-III 级，后行改良根治术。' },
+                    { caseNo: 'SIM-2025-068', score: '88.5%', summary: '细胞核异型性参数域相近，伴局部粉刺样坏死。建议同路径执行双重复核。' },
+                    { caseNo: 'SIM-2024-233', score: '84.0%', summary: '间质结缔组织增生模式相似，临床随访内分泌治疗效果良好。' }
+                ],
+                images: [
+                    { id: 'img1', name: 'Breast_Tissue_Slide_01.svs', size: '1.2 GB', date: '2026-04-24', url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1400&h=900' },
+                    { id: 'img2', name: 'Breast_Tissue_Slide_02.tiff', size: '900 MB', date: '2026-04-24', url: 'https://images.unsplash.com/photo-1583912265924-73fdfb7bc549?auto=format&fit=crop&q=80&w=1400&h=900' },
+                    { id: 'img3', name: 'Breast_Tissue_Slide_03.ndpi', size: '1.7 GB', date: '2026-04-24', url: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=1400&h=900' }
+                ]
+            },
+            p002: {
+                recordNo: 'BL-2026-0412',
+                name: '王*强',
+                gender: '男',
+                age: '58岁',
+                exam: '胃黏膜活检',
+                time: '2026-04-23 10:05',
+                grade: 'II 级',
+                survival: '86%',
+                diagnosis: '可疑中度异型增生，建议动态随访与病理复核。',
+                report: '切片显示腺体结构不规则，局部可见核增大与极性紊乱，尚未见明确深层浸润证据。AI模型判定为中风险病变，倾向中度异型增生。建议结合内镜与临床表现进行动态随访。',
+                similar: [
+                    { caseNo: 'SIM-2025-311', score: '90%', summary: '胃黏膜腺体不规则增生，最终为中度异型增生。' },
+                    { caseNo: 'SIM-2024-401', score: '85%', summary: '细胞排列紊乱但无深层浸润，随访后稳定。' }
+                ],
+                images: [
+                    { id: 'img1', name: 'Gastric_Biopsy_01.svs', size: '800 MB', date: '2026-04-23', url: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=1400&h=900' },
+                    { id: 'img2', name: 'Gastric_Biopsy_02.tiff', size: '670 MB', date: '2026-04-23', url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1400&h=900' }
+                ]
+            },
+            p003: {
+                recordNo: 'BL-2026-0409',
+                name: '陈*宁',
+                gender: '男',
+                age: '65岁',
+                exam: '肺组织病理切片',
+                time: '2026-04-22 09:40',
+                grade: 'I 级',
+                survival: '92%',
+                diagnosis: '未见明显恶性肿瘤细胞，倾向炎症性病变。',
+                report: '切片内可见大量炎性细胞浸润，主要为淋巴细胞及少许浆细胞。肺泡间隔轻度增宽，未见明确破坏性浸润及异型细胞团。AI模型未检出高危特征，倾向于良性/炎症性病变，建议临床抗炎后复查。',
+                similar: [
+                    { caseNo: 'SIM-2024-882', score: '94%', summary: '肺泡间质急慢性炎，随访后好转。' }
+                ],
+                images: [
+                    { id: 'img1', name: 'Lung_Tissue_01.svs', size: '1.1 GB', date: '2026-04-22', url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1400&h=900' }
+                ]
+            },
+            p004: {
+                recordNo: 'BL-2026-0401',
+                name: '赵*兰',
+                gender: '女',
+                age: '52岁',
+                exam: '肝穿刺组织学检查',
+                time: '2026-04-20 16:30',
+                grade: 'II 级',
+                survival: '81%',
+                diagnosis: '局灶性肝细胞假小叶形成，不排除早期癌变可能。',
+                report: '镜下见肝小叶结构部分破坏，肝细胞排列拥挤，可见双核及多核肝细胞，胞浆丰富。AI模型于左下象限检出散在的高核质比区域。考虑到患者病史，需警惕早期高分化肝细胞癌，建议加做网状纤维染色与相关免疫组化。',
+                similar: [
+                    { caseNo: 'SIM-2025-102', score: '89%', summary: '肝细胞局灶性不典型增生，局部癌变。' }
+                ],
+                images: [
+                    { id: 'img1', name: 'Liver_Biopsy_01.ndpi', size: '950 MB', date: '2026-04-20', url: 'https://images.unsplash.com/photo-1583912265924-73fdfb7bc549?auto=format&fit=crop&q=80&w=1400&h=900' }
+                ]
+            },
+            p005: {
+                recordNo: 'BL-2026-0328',
+                name: '周*凯',
+                gender: '男',
+                age: '71岁',
+                exam: '前列腺穿刺活检',
+                time: '2026-04-18 08:20',
+                grade: 'IV 级',
+                survival: '45%',
+                diagnosis: '前列腺腺癌，Gleason评分 4+4=8分。',
+                report: '穿刺组织中见大量分化不良的腺体，呈融合的筛状或实体团块状浸润周围间质。核仁明显。AI检出高频融合腺体特征，判读Gleason评分为8分，属极高危组。建议立即结合全身骨扫描评估转移情况，制定去势治疗或根治方案。',
+                similar: [
+                    { caseNo: 'SIM-2023-559', score: '97%', summary: '前列腺腺癌 Gleason 8分，伴局部神经侵犯。' }
+                ],
+                images: [
+                    { id: 'img1', name: 'Prostate_Core_01.tiff', size: '1.4 GB', date: '2026-04-18', url: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=1400&h=900' }
+                ]
+            }
+        };
+
+        const search = new URLSearchParams(window.location.search);
+        const patientId = search.get('patient') || 'p001';
+        const patient = patients[patientId] || patients.p001;
+
+        // 绑定顶部全局患者信息副导航栏
+        document.getElementById('pi-name').textContent = patient.name;
+        document.getElementById('pi-record').textContent = patient.recordNo;
+        document.getElementById('pi-demo').textContent = `${patient.gender} / ${patient.age}`;
+        document.getElementById('pi-exam').textContent = patient.exam;
+        document.getElementById('pi-time').textContent = patient.time;
+
+        const imageListEl = document.getElementById('imageList');
+        const imageCountEl = document.getElementById('imageCount');
+        
+        const gradeText = document.getElementById('gradeText');
+        const survivalText = document.getElementById('survivalText');
+        const diagnosisText = document.getElementById('diagnosisText');
+        const reportText = document.getElementById('reportText');
+        const similarList = document.getElementById('similarList');
+        
+        const mainImage = document.getElementById('mainImage');
+        const viewer = document.getElementById('viewer');
+        const viewerContent = document.getElementById('viewer-content');
+        const zoomLabel = document.getElementById('zoomLabel');
+        const rotateLabel = document.getElementById('rotateLabel');
+        const coordX = document.getElementById('coordX');
+        const coordY = document.getElementById('coordY');
+
+        const leftPanel = document.getElementById('left-panel');
+        const rightPanel = document.getElementById('right-panel');
+        const btnToggleLeft = document.getElementById('btnToggleLeft');
+        const btnToggleRight = document.getElementById('btnToggleRight');
+        const btnOpenLeft = document.getElementById('btnOpenLeft');
+        const btnOpenRight = document.getElementById('btnOpenRight');
+        const leftDivider = document.getElementById('leftDivider');
+
+        const btnUpload = document.getElementById('btnUpload');
+        const imageUpload = document.getElementById('imageUpload');
+
+        let activeImages = [...patient.images];
+        let activeImageId = activeImages[0] ? activeImages[0].id : null;
+
+        let scale = 1;
+        let rotation = 0;
+        let panX = 0;
+        let panY = 0;
+        let isPanning = false;
+        let startX = 0;
+        let startY = 0;
+
+        // ==========================================
+        // 右侧交互：选项卡切换逻辑
+        // ==========================================
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                b.classList.add('text-slate-500');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            btn.classList.remove('text-slate-500');
+            btn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+        }
+
+        // ==========================================
+        // 右侧交互：大语言模型打字机报告生成
+        // ==========================================
+        let typeTimer;
+        function startTypingReport() {
+            const btn = document.getElementById('btnGenerateReport');
+            const actions = document.getElementById('reportActions');
+            const fullText = patient.report;
+            
+            btn.disabled = true;
+            btn.classList.remove('bg-primary', 'hover:bg-blue-700');
+            btn.classList.add('bg-blue-400', 'cursor-not-allowed');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> 大模型推理并撰写中...';
+            reportText.innerHTML = '';
+            actions.classList.add('hidden');
+            
+            let i = 0;
+            clearInterval(typeTimer);
+            const cursorHtml = '<span id="typingCursor" class="inline-block w-1.5 h-3.5 bg-blue-600 ml-1 mb-0.5 animate-pulse align-baseline"></span>';
+            
+            typeTimer = setInterval(() => {
+                reportText.innerHTML = fullText.substring(0, i) + cursorHtml;
+                i++;
+                
+                const container = reportText.parentElement;
+                container.scrollTop = container.scrollHeight;
+                
+                if (i > fullText.length) {
+                    clearInterval(typeTimer);
+                    document.getElementById('typingCursor')?.remove();
+                    
+                    // 修复按钮颜色逻辑：去掉灰色状态，恢复原本的蓝底白字
+                    btn.disabled = false;
+                    btn.classList.remove('bg-blue-400', 'cursor-not-allowed');
+                    btn.classList.add('bg-primary', 'hover:bg-blue-700', 'active:bg-blue-800'); 
+                    
+                    btn.innerHTML = '<i class="fas fa-redo mr-2"></i> 重新生成评估报告';
+                    actions.classList.remove('hidden');
+                }
+            }, 25);
+        }
+
+        // ==========================================
+        // 核心渲染逻辑
+        // ==========================================
+        function updateTransform() {
+            viewerContent.style.transform = `translate(${panX}px, ${panY}px) scale(${scale}) rotate(${rotation}deg)`;
+            zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+            rotateLabel.textContent = `${rotation}°`;
+        }
+
+        function fitView() {
+            const imgW = mainImage.clientWidth || 1400;
+            const imgH = mainImage.clientHeight || 900;
+            const wrapW = viewer.clientWidth;
+            const wrapH = viewer.clientHeight;
+            scale = Math.max(0.1, Math.min(2, Math.min(wrapW / imgW, wrapH / imgH)));
+            panX = (wrapW - imgW * scale) / 2;
+            panY = (wrapH - imgH * scale) / 2;
+            updateTransform();
+        }
+
+        function selectImage(imageId) {
+            activeImageId = imageId;
+            const image = activeImages.find((item) => item.id === imageId);
+            if (!image) return;
+            mainImage.src = image.url;
+            renderImageList();
+            mainImage.onload = fitView;
+        }
+
+        function renderImageList() {
+            imageListEl.innerHTML = '';
+            activeImages.forEach((item) => {
+                const isActive = item.id === activeImageId;
+                const entry = document.createElement('button');
+                entry.className = `w-full text-left rounded-lg border px-3 py-2.5 mb-2 transition shadow-sm ${isActive ? 'border-blue-400 bg-blue-50/80 ring-1 ring-blue-100' : 'border-slate-200 bg-white hover:border-blue-300'}`;
+                entry.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1 flex-shrink-0 w-8 h-8 rounded bg-white flex items-center justify-center border border-slate-100 shadow-sm">
+                            <i class="fas fa-microscope text-sm ${isActive ? 'text-blue-600' : 'text-slate-400'}"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-bold ${isActive ? 'text-blue-700' : 'text-slate-700'} truncate" title="${item.name}">${item.name}</p>
+                            <p class="text-[11px] text-slate-500 mt-1 flex justify-between">
+                                <span>${item.size}</span>
+                                <span>${item.date}</span>
+                            </p>
+                        </div>
+                    </div>
+                `;
+                entry.addEventListener('click', () => selectImage(item.id));
+                imageListEl.appendChild(entry);
+            });
+            imageCountEl.textContent = `共加载 ${activeImages.length} 视野`;
+        }
+
+        function renderAiModules() {
+            gradeText.textContent = patient.grade;
+            survivalText.textContent = patient.survival;
+            diagnosisText.textContent = patient.diagnosis;
+            
+            // 清空报告框，待一键生成
+            reportText.innerHTML = ""; 
+
+            similarList.innerHTML = '';
+            patient.similar.forEach((item, index) => {
+                // 第一条加个小皇冠图标
+                const isTop = index === 0;
+                const block = document.createElement('div');
+                block.className = 'rounded-lg border border-slate-200 px-3 py-3 bg-slate-50/60 hover:bg-white hover:shadow-md transition cursor-pointer relative overflow-hidden group';
+                // 增加一点高亮左边框
+                if (isTop) block.classList.add('border-l-4', 'border-l-indigo-500', 'bg-indigo-50/30');
+
+                block.innerHTML = `
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-mono text-slate-600 font-medium">
+                            ${isTop ? '<i class="fas fa-crown text-amber-500 mr-1" title="最佳匹配"></i>' : '<i class="fas fa-history text-slate-400 mr-1"></i>'}
+                            ${item.caseNo}
+                        </span>
+                        <span class="text-indigo-600 font-bold bg-indigo-100 px-1.5 py-0.5 rounded">相似度 ${item.score}</span>
+                    </div>
+                    <p class="text-xs leading-relaxed text-slate-700">${item.summary}</p>
+                    <div class="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition">
+                        <span class="text-[10px] text-blue-500 flex items-center"><i class="fas fa-external-link-alt mr-1"></i>调阅</span>
+                    </div>
+                `;
+                similarList.appendChild(block);
+            });
+        }
+
+        function applyAction(action) {
+            const centerX = viewer.clientWidth / 2;
+            const centerY = viewer.clientHeight / 2;
+            const originX = (centerX - panX) / scale;
+            const originY = (centerY - panY) / scale;
+
+            if (action === 'zoomIn') scale = Math.min(8, scale * 1.2);
+            if (action === 'zoomOut') scale = Math.max(0.1, scale / 1.2);
+            if (action === 'actual') scale = 1;
+            if (action === 'rotateLeft') rotation -= 90;
+            if (action === 'rotateRight') rotation += 90;
+            if (action === 'fit') {
+                fitView();
+                return;
+            }
+
+            if (action === 'zoomIn' || action === 'zoomOut' || action === 'actual') {
+                panX = centerX - originX * scale;
+                panY = centerY - originY * scale;
+            }
+            updateTransform();
+        }
+
+        function toggleLeftPanel(show) {
+            leftPanel.classList.toggle('hidden-panel', !show);
+            btnOpenLeft.style.display = show ? 'none' : 'inline-flex';
+            leftDivider.style.display = show ? 'none' : 'block';
+            setTimeout(fitView, 300);
+        }
+
+        function toggleRightPanel(show) {
+            rightPanel.classList.toggle('hidden-panel', !show);
+            btnOpenRight.style.display = show ? 'none' : 'inline-flex';
+            setTimeout(fitView, 300);
+        }
+
+        // 事件监听绑定
+        document.querySelectorAll('[data-action]').forEach((btn) => {
+            btn.addEventListener('click', () => applyAction(btn.dataset.action));
+        });
+
+        viewer.addEventListener('mousedown', (event) => {
+            isPanning = true;
+            startX = event.clientX - panX;
+            startY = event.clientY - panY;
+            viewer.classList.add('cursor-grabbing');
+        });
+
+        window.addEventListener('mouseup', () => {
+            isPanning = false;
+            viewer.classList.remove('cursor-grabbing');
+        });
+
+        viewer.addEventListener('mousemove', (event) => {
+            const rect = viewerContent.getBoundingClientRect();
+            const x = Math.max(0, Math.round((event.clientX - rect.left) / scale));
+            const y = Math.max(0, Math.round((event.clientY - rect.top) / scale));
+            coordX.textContent = String(x).padStart(4, '0');
+            coordY.textContent = String(y).padStart(4, '0');
+
+            if (!isPanning) return;
+            panX = event.clientX - startX;
+            panY = event.clientY - startY;
+            updateTransform();
+        });
+
+        viewer.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            const pointX = (event.clientX - panX) / scale;
+            const pointY = (event.clientY - panY) / scale;
+            if (event.deltaY > 0) scale = Math.max(0.1, scale / 1.08);
+            else scale = Math.min(8, scale * 1.08);
+            panX = event.clientX - pointX * scale;
+            panY = event.clientY - pointY * scale;
+            updateTransform();
+        }, { passive: false });
+
+        btnToggleLeft.addEventListener('click', () => toggleLeftPanel(false));
+        btnOpenLeft.addEventListener('click', () => toggleLeftPanel(true));
+        btnToggleRight.addEventListener('click', () => toggleRightPanel(false));
+        btnOpenRight.addEventListener('click', () => toggleRightPanel(true));
+
+        btnUpload.addEventListener('click', () => imageUpload.click());
+        imageUpload.addEventListener('change', (event) => {
+            const files = Array.from(event.target.files || []);
+            files.forEach((file) => {
+                activeImages.unshift({
+                    id: `upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                    name: file.name,
+                    size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+                    date: new Date().toISOString().slice(0, 10),
+                    url: URL.createObjectURL(file)
+                });
+            });
+            renderImageList();
+            if (activeImages.length) selectImage(activeImages[0].id);
+            imageUpload.value = '';
+        });
+
+        window.addEventListener('resize', fitView);
+
+        // 初始化执行
+        renderAiModules();
+        renderImageList();
+        if (activeImageId) selectImage(activeImageId);
+        // ==========================================
+        // 增量修复：PDF 导出功能
+        // ==========================================
+        function exportAiReportPdf() {
+            const reportHtml = `
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>AI病例报告-${patient.recordNo}</title>
+                    <style>
+                        body { font-family: 'Microsoft YaHei', sans-serif; padding: 28px; color: #0f172a; }
+                        h1 { color: #1e3a8a; margin-bottom: 10px; }
+                        h2 { color: #334155; margin: 18px 0 8px; font-size: 18px; }
+                        p { line-height: 1.8; font-size: 14px; white-space: pre-wrap; }
+                        .meta { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+                        .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>医学影像智能分析系统 - AI病例报告</h1>
+                    <div class="meta">
+                        <p><strong>病历号:</strong> ${patient.recordNo}</p>
+                        <p><strong>患者姓名:</strong> ${patient.name}</p>
+                        <p><strong>性别/年龄:</strong> ${patient.gender} / ${patient.age}</p>
+                        <p><strong>检查项目:</strong> ${patient.exam}</p>
+                        <p><strong>检查时间:</strong> ${patient.time}</p>
+                    </div>
+
+                    <h2>病例本身分析</h2>
+                    <div class="grid">
+                        <div class="card"><strong>病情分级</strong><p>${patient.grade}</p></div>
+                        <div class="card"><strong>5年存活率</strong><p>${patient.survival}</p></div>
+                    </div>
+                    <div class="card" style="margin-top:10px;"><strong>AI关键结论</strong><p>${patient.diagnosis}</p></div>
+
+                    <h2>大语言模型结构化报告</h2>
+                    <p>${patient.report}</p>
+                </body>
+                </html>
+            `;
+
+            const popup = window.open('', '_blank');
+            if (!popup) {
+                alert('浏览器阻止了弹窗，请允许弹窗后重试导出。');
+                return;
+            }
+            popup.document.write(reportHtml);
+            popup.document.close();
+            popup.focus();
+            // 稍微延迟确保样式渲染完毕再调出打印窗口
+            setTimeout(() => popup.print(), 200); 
+        }
+
+        // 重新绑定点击事件
+        document.getElementById('btnExportPdf').addEventListener('click', exportAiReportPdf);
+    </script>
+</body>
+</html>
