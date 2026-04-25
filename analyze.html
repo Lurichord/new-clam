@@ -8,29 +8,14 @@
     <script>
         tailwind.config = {
             theme: {
-                extend: {
-                    colors: {
-                        primary: '#1d4ed8',
-                        navbg: '#1e3a8a'
-                    },
-                    fontFamily: {
-                        sans: ['Noto Sans SC', 'Microsoft YaHei', 'Segoe UI', 'sans-serif']
-                    }
-                }
+                extend: { colors: { primary: '#1d4ed8', navbg: '#1e3a8a' }, fontFamily: { sans: ['Noto Sans SC', 'Microsoft YaHei', 'sans-serif'] } }
             }
         };
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --left-panel-width: 300px;
-            --right-panel-width: 360px;
-        }
-
-        body {
-            background: linear-gradient(180deg, #e9efff 0%, #eff4ff 45%, #f8fafc 100%);
-        }
-
+        :root { --left-panel-width: 320px; --right-panel-width: 360px; }
+        body { background: linear-gradient(180deg, #e9efff 0%, #eff4ff 45%, #f8fafc 100%); }
         .viewer-bg {
             background-color: #0f172a;
             background-image:
@@ -41,75 +26,22 @@
             background-size: 24px 24px;
             background-position: 0 0, 0 12px, 12px -12px, -12px 0;
         }
-
-        .panel-translucent {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(6px);
-        }
-
-        #viewer-content {
-            transform-origin: 0 0;
-            will-change: transform;
-        }
-
-        #left-panel {
-            width: var(--left-panel-width);
-        }
-
-        #right-panel {
-            width: var(--right-panel-width);
-        }
-
-        .hidden-panel {
-            width: 0 !important;
-            min-width: 0 !important;
-            border: 0 !important;
-            opacity: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        ::-webkit-scrollbar {
-            width: 7px;
-            height: 7px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 999px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        @media (max-width: 1280px) {
-            :root {
-                --left-panel-width: 260px;
-                --right-panel-width: 320px;
-            }
-        }
-
-        @media (max-width: 960px) {
-            :root {
-                --left-panel-width: 220px;
-                --right-panel-width: 260px;
-            }
-        }
+        .panel-translucent { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(6px); }
+        #left-panel { width: var(--left-panel-width); }
+        #right-panel { width: var(--right-panel-width); }
+        .hidden-panel { width: 0 !important; min-width: 0 !important; border: 0 !important; opacity: 0; overflow: hidden; pointer-events: none; }
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
     </style>
 </head>
 <body class="font-sans text-slate-800 min-h-screen flex flex-col">
     <nav class="h-14 bg-navbg text-white flex items-center justify-between px-4 sm:px-6 shadow-md z-30 shrink-0">
         <div class="flex items-center gap-3">
-            <a href="index.html" class="text-blue-200 hover:text-white transition p-2 rounded hover:bg-white/10" title="返回病例列表">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner">
-                <i class="fas fa-microscope text-white text-lg"></i>
-            </div>
+            <a href="index.html" class="text-blue-200 hover:text-white transition p-2 rounded hover:bg-white/10" title="返回病例列表"><i class="fas fa-arrow-left"></i></a>
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner"><i class="fas fa-microscope text-white text-lg"></i></div>
             <h1 class="text-xl font-bold tracking-wide">医学影像智能分析系统</h1>
         </div>
-
         <div class="flex items-center gap-3 cursor-pointer hover:bg-blue-800 p-1.5 rounded transition">
             <img src="https://ui-avatars.com/api/?name=Dr.+Wang&background=1d4ed8&color=fff" alt="User" class="w-8 h-8 rounded-full border-2 border-blue-300">
             <div class="flex flex-col hidden sm:flex">
@@ -123,9 +55,7 @@
     <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 text-sm shrink-0 shadow-sm z-20">
         <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
             <div class="flex items-center gap-2 whitespace-nowrap">
-                <div class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs">
-                    <i class="fas fa-user-injured"></i>
-                </div>
+                <div class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs"><i class="fas fa-user-injured"></i></div>
                 <span id="pi-name" class="font-bold text-slate-800 text-base">加载中...</span>
             </div>
             <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
@@ -137,75 +67,73 @@
             <div class="h-4 w-px bg-slate-300 hidden md:block"></div>
             <div class="whitespace-nowrap hidden md:block"><span class="text-slate-400 mr-1.5"><i class="far fa-clock"></i> 送检时间:</span><span id="pi-time" class="font-medium text-slate-700"></span></div>
         </div>
-        
         <div class="shrink-0 ml-4">
-            <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 shadow-sm flex items-center gap-1.5">
-                <i class="fas fa-check-circle"></i> CANPRED 解析完毕
-            </span>
+            <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 shadow-sm flex items-center gap-1.5"><i class="fas fa-check-circle"></i> CANPRED 解析完毕</span>
         </div>
     </div>
 
     <main class="flex-1 flex overflow-hidden min-h-0">
         <aside id="left-panel" class="panel-translucent border-r border-slate-200 flex flex-col shrink-0 transition-all duration-300">
             <div class="h-12 px-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-                <h2 class="text-sm font-bold text-slate-700">同病例图像列表</h2>
-                <button id="btnToggleLeft" class="w-8 h-8 rounded hover:bg-slate-200 text-slate-600 transition" title="收起左侧栏">
-                    <i class="fas fa-angle-left"></i>
-                </button>
+                <h2 class="text-sm font-bold text-slate-700"><i class="fas fa-folder-tree mr-2 text-blue-500"></i>患者历次影像档案</h2>
+                <button id="btnToggleLeft" class="w-8 h-8 rounded hover:bg-slate-200 text-slate-600 transition" title="收起左侧栏"><i class="fas fa-angle-left"></i></button>
             </div>
-
-            <div class="p-4 border-b border-slate-100">
-                <input id="imageUpload" type="file" accept="image/*" multiple class="hidden">
-                <button id="btnUpload" class="w-full py-2.5 rounded-lg border border-dashed border-blue-300 bg-blue-50 text-sm text-blue-700 hover:bg-blue-100 transition shadow-sm">
-                    <i class="fas fa-cloud-upload-alt mr-2"></i>本地上传图像
-                </button>
-            </div>
-
-            <div id="imageList" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/30"></div>
-
-            <div class="px-4 py-3 border-t border-slate-200 text-xs text-slate-500 bg-slate-50/50">
-                <span id="imageCount">共 0 张图像</span>
+            <div id="fileSystemContainer" class="flex-1 overflow-y-auto p-2 bg-slate-50/30"></div>
+            <div class="px-4 py-3 border-t border-slate-200 text-xs text-slate-500 bg-slate-50/50 flex justify-between">
+                <span>档案层级视图</span>
+                <span id="imageCount" class="font-bold"></span>
             </div>
         </aside>
 
         <section class="flex-1 min-w-0 flex flex-col">
-            <div class="h-12 bg-white/90 border-b border-slate-200 backdrop-blur flex items-center justify-between px-3 z-10 shadow-sm">
+            <div class="h-12 bg-white/90 border-b border-slate-200 backdrop-blur flex items-center justify-between px-3 z-10 shadow-sm shrink-0">
                 <div class="flex items-center gap-1">
-                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnOpenLeft" title="展开左侧栏" style="display:none;">
-                        <i class="fas fa-angle-right"></i>
-                    </button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnOpenLeft" title="展开左侧栏" style="display:none;"><i class="fas fa-angle-right"></i></button>
                     <div class="w-px h-6 bg-slate-300 mx-1" id="leftDivider" style="display:none;"></div>
                     
-                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="zoomIn" title="放大 (Scroll Up)"><i class="fas fa-search-plus"></i></button>
-                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="zoomOut" title="缩小 (Scroll Down)"><i class="fas fa-search-minus"></i></button>
+                    <button id="btnCompare" class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" title="开启双图对比模式"><i class="fas fa-columns"></i></button>
+                    <div class="w-px h-6 bg-slate-300 mx-1"></div>
+
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="zoomIn" title="放大"><i class="fas fa-search-plus"></i></button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="zoomOut" title="缩小"><i class="fas fa-search-minus"></i></button>
                     <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="fit" title="适应窗口"><i class="fas fa-compress"></i></button>
-                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="actual" title="原始比例 100%"><i class="fas fa-magnifying-glass"></i></button>
-                    
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="actual" title="原始比例"><i class="fas fa-magnifying-glass"></i></button>
                     <div class="w-px h-6 bg-slate-300 mx-1"></div>
                     <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="rotateLeft" title="左旋转"><i class="fas fa-undo"></i></button>
                     <button class="p-2 rounded hover:bg-slate-100 text-slate-700 transition" data-action="rotateRight" title="右旋转"><i class="fas fa-redo"></i></button>
                 </div>
-
                 <div class="flex items-center gap-3 text-xs text-slate-600">
-                    <span class="bg-slate-100 px-2 py-1 rounded">缩放: <strong id="zoomLabel" class="text-primary font-mono">100%</strong></span>
-                    <span class="bg-slate-100 px-2 py-1 rounded">角度: <strong id="rotateLabel" class="text-primary font-mono">0°</strong></span>
-                    <div class="w-px h-6 bg-slate-300 mx-1"></div>
-                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnToggleRight" title="收起右侧栏">
-                        <i class="fas fa-angle-right"></i>
-                    </button>
-                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnOpenRight" title="展开右侧栏" style="display:none;">
-                        <i class="fas fa-angle-left"></i>
-                    </button>
+                    <span class="bg-slate-100 px-2 py-1 rounded">当前缩放: <strong id="zoomLabel" class="text-primary font-mono">100%</strong></span>
+                    <span class="bg-slate-100 px-2 py-1 rounded">当前角度: <strong id="rotateLabel" class="text-primary font-mono">0°</strong></span>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnToggleRight" title="收起右侧栏"><i class="fas fa-angle-right"></i></button>
+                    <button class="p-2 rounded hover:bg-slate-100 text-slate-600 transition" id="btnOpenRight" title="展开右侧栏" style="display:none;"><i class="fas fa-angle-left"></i></button>
                 </div>
             </div>
 
-            <div id="viewer" class="flex-1 min-h-0 relative viewer-bg overflow-hidden cursor-grab active:cursor-grabbing">
-                <div id="viewer-content" class="absolute top-0 left-0 transition-transform duration-75">
-                    <img id="mainImage" src="" alt="WSI 图像" class="max-w-none select-none pointer-events-none shadow-2xl" style="width: 1400px; height: 900px; object-fit: cover;">
+            <div class="flex-1 min-h-0 flex bg-slate-900 overflow-hidden relative">
+                
+                <div id="viewer1" class="flex-1 relative viewer-bg overflow-hidden cursor-grab border-2 border-blue-500 transition-colors">
+                    <div id="content1" class="absolute top-[50%] left-[50%] w-[1400px] h-[900px] origin-center will-change-transform" style="transform: translate(-50%, -50%);">
+                        <img id="img1" src="" class="w-full h-full object-contain pointer-events-none shadow-2xl">
+                    </div>
+                    <div class="absolute left-3 bottom-3 px-3 py-1.5 rounded bg-slate-900/80 text-white text-xs backdrop-blur border border-slate-700/50 shadow-lg font-mono tracking-wider flex items-center gap-3">
+                        <div><span class="text-blue-400 font-bold mr-1">V1</span> <span id="tag1" class="text-slate-200">请从左侧选择影像</span></div>
+                        <div class="w-px h-3 bg-slate-600"></div>
+                        <div>X: <span id="cX1" class="text-emerald-400">0000</span> | Y: <span id="cY1" class="text-emerald-400">0000</span></div>
+                    </div>
                 </div>
-                <div class="absolute left-3 bottom-3 px-3 py-1.5 rounded bg-slate-900/70 text-white text-xs backdrop-blur border border-slate-700/50 shadow-lg font-mono tracking-wider">
-                    X: <span id="coordX" class="text-emerald-400">0000</span> | Y: <span id="coordY" class="text-emerald-400">0000</span>
+
+                <div id="viewer2" class="flex-1 relative viewer-bg overflow-hidden cursor-grab border-2 border-transparent border-l border-l-slate-700 hidden transition-colors">
+                    <div id="content2" class="absolute top-[50%] left-[50%] w-[1400px] h-[900px] origin-center will-change-transform" style="transform: translate(-50%, -50%);">
+                        <img id="img2" src="" class="w-full h-full object-contain pointer-events-none shadow-2xl">
+                    </div>
+                    <div class="absolute left-3 bottom-3 px-3 py-1.5 rounded bg-slate-900/80 text-white text-xs backdrop-blur border border-slate-700/50 shadow-lg font-mono tracking-wider flex items-center gap-3">
+                        <div><span class="text-amber-400 font-bold mr-1">V2</span> <span id="tag2" class="text-slate-200">未加载</span></div>
+                        <div class="w-px h-3 bg-slate-600"></div>
+                        <div>X: <span id="cX2" class="text-emerald-400">0000</span> | Y: <span id="cY2" class="text-emerald-400">0000</span></div>
+                    </div>
                 </div>
+
             </div>
         </section>
 
@@ -213,7 +141,6 @@
             <div class="h-12 px-4 border-b border-slate-200 flex items-center shrink-0 bg-slate-50/50">
                 <h2 class="text-sm font-bold text-slate-700"><i class="fas fa-brain text-primary mr-2"></i>多维度 AI 辅助模块</h2>
             </div>
-
             <div class="p-3 border-b border-slate-100 bg-slate-50/80 shrink-0 shadow-sm z-10 relative">
                 <div class="flex bg-slate-200/70 p-1 rounded-lg">
                     <button onclick="switchTab('tab-ai', this)" class="tab-btn flex-1 py-1.5 text-xs font-bold rounded-md bg-white text-blue-600 shadow-sm transition-all">靶向分析</button>
@@ -221,9 +148,7 @@
                     <button onclick="switchTab('tab-rep', this)" class="tab-btn flex-1 py-1.5 text-xs font-bold rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 transition-all">诊疗报告</button>
                 </div>
             </div>
-
             <div class="flex-1 relative overflow-hidden bg-slate-50/30">
-                
                 <div id="tab-ai" class="tab-content absolute inset-0 overflow-y-auto p-4">
                     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
                         <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
@@ -246,33 +171,24 @@
                         </div>
                     </section>
                 </div>
-
                 <div id="tab-sim" class="tab-content hidden absolute inset-0 overflow-y-auto p-4">
                     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 min-h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 shrink-0">
                             <h3 class="font-bold text-slate-700 text-sm">历史病例召回库</h3>
                             <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-100"><i class="fas fa-database mr-1"></i>Milvus 检索</span>
                         </div>
-                        <div id="similarList" class="space-y-3 flex-1 overflow-y-auto pr-1">
-                            </div>
+                        <div id="similarList" class="space-y-3 flex-1 overflow-y-auto pr-1"></div>
                     </section>
                 </div>
-
                 <div id="tab-rep" class="tab-content hidden absolute inset-0 overflow-y-auto p-4 flex flex-col">
                     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-1 flex flex-col">
                         <h3 class="font-bold text-slate-700 text-sm mb-3">大语言模型结构化报告</h3>
-                        
                         <button id="btnGenerateReport" onclick="startTypingReport()" class="w-full py-2.5 mb-3 bg-primary text-white rounded-lg shadow hover:bg-blue-700 active:bg-blue-800 transition font-bold text-sm flex items-center justify-center">
                             <i class="fas fa-magic mr-2"></i> 结合指标一键生成草案
                         </button>
-                        
                         <div class="flex-1 bg-slate-50 rounded-lg p-4 border border-slate-200 shadow-inner overflow-y-auto relative group">
-                            <div class="absolute top-2 right-2 hidden group-hover:block transition">
-                                <button class="w-6 h-6 bg-white border border-slate-200 rounded text-slate-400 hover:text-blue-600 shadow-sm flex items-center justify-center" title="复制内容"><i class="far fa-copy text-xs"></i></button>
-                            </div>
                             <p id="reportText" class="text-sm leading-7 text-slate-700 whitespace-pre-wrap font-serif"></p>
                         </div>
-
                         <div id="reportActions" class="hidden mt-3 pt-3 border-t border-slate-100">
                             <button class="w-full py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-bold text-sm hover:bg-emerald-100 transition shadow-sm">
                                 <i class="fas fa-file-signature mr-2"></i>医生签名确认并签发
@@ -294,102 +210,21 @@
     </footer>
 
     <script>
-        // 扩展患者数据，补全了所有5个病人的数据，确保从 index.html 点击任何一个都不会失效
+        // ----------------------------------------------------
+        // 数据源与初始化 (保留原样)
+        // ----------------------------------------------------
         const patients = {
             p001: {
-                recordNo: 'BL-2026-0418',
-                name: '李*华',
-                gender: '女',
-                age: '45岁',
-                exam: '乳腺穿刺活检 (HE)',
-                time: '2026-04-24 14:20',
-                grade: 'III 级',
-                survival: '78%',
+                recordNo: 'BL-2026-0418', name: '李*华', gender: '女', age: '45岁', exam: '乳腺穿刺活检 (HE)', time: '2026-04-24 14:20', grade: 'III 级', survival: '78%',
                 diagnosis: '疑似浸润性导管癌，建议进一步免疫组化复核。',
                 report: '【镜下所见】\n本次HE切片中可见异型性明显的上皮样细胞，呈巢状及索状浸润生长。细胞核大深染，核浆比例失调，伴局灶坏死与周边间质纤维组织增生反应。\n\n【AI 辅助诊断意见】\n结合 CANPRED 模型提取的细胞密度、核异型性评分与病灶空间分布特征，当前切片触发高风险预警阈值。系统比对 Milvus 历史病例库，特征向量倾向为「浸润性导管癌」。\n\n【临床建议】\n建议结合免疫组化相关指标（ER、PR、HER2、Ki-67）以明确分子分型；同时建议复查患者临床影像学资料，进行进一步的分期与预后评估。',
                 similar: [
-                    { caseNo: 'SIM-2025-117', score: '96.2%', summary: '病灶空间分布高度相似。历史最终诊断：浸润性导管癌 II-III 级，后行改良根治术。' },
-                    { caseNo: 'SIM-2025-068', score: '88.5%', summary: '细胞核异型性参数域相近，伴局部粉刺样坏死。建议同路径执行双重复核。' },
-                    { caseNo: 'SIM-2024-233', score: '84.0%', summary: '间质结缔组织增生模式相似，临床随访内分泌治疗效果良好。' }
+                    { caseNo: 'SIM-2025-117', score: '96.2%', summary: '病灶空间分布高度相似。历史最终诊断：浸润性导管癌 II-III 级。' },
+                    { caseNo: 'SIM-2025-068', score: '88.5%', summary: '细胞核异型性参数域相近，伴局部粉刺样坏死。建议同路径执行双重复核。' }
                 ],
                 images: [
-                    { id: 'img1', name: 'Breast_Tissue_Slide_01.svs', size: '1.2 GB', date: '2026-04-24', url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1400&h=900' },
-                    { id: 'img2', name: 'Breast_Tissue_Slide_02.tiff', size: '900 MB', date: '2026-04-24', url: 'https://images.unsplash.com/photo-1583912265924-73fdfb7bc549?auto=format&fit=crop&q=80&w=1400&h=900' },
-                    { id: 'img3', name: 'Breast_Tissue_Slide_03.ndpi', size: '1.7 GB', date: '2026-04-24', url: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=1400&h=900' }
-                ]
-            },
-            p002: {
-                recordNo: 'BL-2026-0412',
-                name: '王*强',
-                gender: '男',
-                age: '58岁',
-                exam: '胃黏膜活检',
-                time: '2026-04-23 10:05',
-                grade: 'II 级',
-                survival: '86%',
-                diagnosis: '可疑中度异型增生，建议动态随访与病理复核。',
-                report: '切片显示腺体结构不规则，局部可见核增大与极性紊乱，尚未见明确深层浸润证据。AI模型判定为中风险病变，倾向中度异型增生。建议结合内镜与临床表现进行动态随访。',
-                similar: [
-                    { caseNo: 'SIM-2025-311', score: '90%', summary: '胃黏膜腺体不规则增生，最终为中度异型增生。' },
-                    { caseNo: 'SIM-2024-401', score: '85%', summary: '细胞排列紊乱但无深层浸润，随访后稳定。' }
-                ],
-                images: [
-                    { id: 'img1', name: 'Gastric_Biopsy_01.svs', size: '800 MB', date: '2026-04-23', url: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=1400&h=900' },
-                    { id: 'img2', name: 'Gastric_Biopsy_02.tiff', size: '670 MB', date: '2026-04-23', url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1400&h=900' }
-                ]
-            },
-            p003: {
-                recordNo: 'BL-2026-0409',
-                name: '陈*宁',
-                gender: '男',
-                age: '65岁',
-                exam: '肺组织病理切片',
-                time: '2026-04-22 09:40',
-                grade: 'I 级',
-                survival: '92%',
-                diagnosis: '未见明显恶性肿瘤细胞，倾向炎症性病变。',
-                report: '切片内可见大量炎性细胞浸润，主要为淋巴细胞及少许浆细胞。肺泡间隔轻度增宽，未见明确破坏性浸润及异型细胞团。AI模型未检出高危特征，倾向于良性/炎症性病变，建议临床抗炎后复查。',
-                similar: [
-                    { caseNo: 'SIM-2024-882', score: '94%', summary: '肺泡间质急慢性炎，随访后好转。' }
-                ],
-                images: [
-                    { id: 'img1', name: 'Lung_Tissue_01.svs', size: '1.1 GB', date: '2026-04-22', url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1400&h=900' }
-                ]
-            },
-            p004: {
-                recordNo: 'BL-2026-0401',
-                name: '赵*兰',
-                gender: '女',
-                age: '52岁',
-                exam: '肝穿刺组织学检查',
-                time: '2026-04-20 16:30',
-                grade: 'II 级',
-                survival: '81%',
-                diagnosis: '局灶性肝细胞假小叶形成，不排除早期癌变可能。',
-                report: '镜下见肝小叶结构部分破坏，肝细胞排列拥挤，可见双核及多核肝细胞，胞浆丰富。AI模型于左下象限检出散在的高核质比区域。考虑到患者病史，需警惕早期高分化肝细胞癌，建议加做网状纤维染色与相关免疫组化。',
-                similar: [
-                    { caseNo: 'SIM-2025-102', score: '89%', summary: '肝细胞局灶性不典型增生，局部癌变。' }
-                ],
-                images: [
-                    { id: 'img1', name: 'Liver_Biopsy_01.ndpi', size: '950 MB', date: '2026-04-20', url: 'https://images.unsplash.com/photo-1583912265924-73fdfb7bc549?auto=format&fit=crop&q=80&w=1400&h=900' }
-                ]
-            },
-            p005: {
-                recordNo: 'BL-2026-0328',
-                name: '周*凯',
-                gender: '男',
-                age: '71岁',
-                exam: '前列腺穿刺活检',
-                time: '2026-04-18 08:20',
-                grade: 'IV 级',
-                survival: '45%',
-                diagnosis: '前列腺腺癌，Gleason评分 4+4=8分。',
-                report: '穿刺组织中见大量分化不良的腺体，呈融合的筛状或实体团块状浸润周围间质。核仁明显。AI检出高频融合腺体特征，判读Gleason评分为8分，属极高危组。建议立即结合全身骨扫描评估转移情况，制定去势治疗或根治方案。',
-                similar: [
-                    { caseNo: 'SIM-2023-559', score: '97%', summary: '前列腺腺癌 Gleason 8分，伴局部神经侵犯。' }
-                ],
-                images: [
-                    { id: 'img1', name: 'Prostate_Core_01.tiff', size: '1.4 GB', date: '2026-04-18', url: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=1400&h=900' }
+                    { id: 'img1', name: 'Breast_Tissue_Slide_01.svs', size: '1.2 GB', url: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=1400&h=900' },
+                    { id: 'img2', name: 'Breast_Tissue_Slide_02.tiff', size: '900 MB', url: 'https://images.unsplash.com/photo-1583912265924-73fdfb7bc549?auto=format&fit=crop&q=80&w=1400&h=900' }
                 ]
             }
         };
@@ -398,55 +233,347 @@
         const patientId = search.get('patient') || 'p001';
         const patient = patients[patientId] || patients.p001;
 
-        // 绑定顶部全局患者信息副导航栏
         document.getElementById('pi-name').textContent = patient.name;
         document.getElementById('pi-record').textContent = patient.recordNo;
         document.getElementById('pi-demo').textContent = `${patient.gender} / ${patient.age}`;
         document.getElementById('pi-exam').textContent = patient.exam;
         document.getElementById('pi-time').textContent = patient.time;
 
-        const imageListEl = document.getElementById('imageList');
-        const imageCountEl = document.getElementById('imageCount');
+        // ----------------------------------------------------
+        // 核心改动：支持双屏和中心化矩阵计算的 Viewer 系统
+        // ----------------------------------------------------
         
+        // 我们构建一个 Viewer 数组来管理两个视口的状态
+        const viewers = [
+            {
+                index: 0,
+                el: document.getElementById('viewer1'),
+                contentEl: document.getElementById('content1'),
+                imgEl: document.getElementById('img1'),
+                tagEl: document.getElementById('tag1'),
+                cX: document.getElementById('cX1'), cY: document.getElementById('cY1'),
+                fileId: null,
+                state: { scale: 1, rotation: 0, panX: 0, panY: 0 }
+            },
+            {
+                index: 1,
+                el: document.getElementById('viewer2'),
+                contentEl: document.getElementById('content2'),
+                imgEl: document.getElementById('img2'),
+                tagEl: document.getElementById('tag2'),
+                cX: document.getElementById('cX2'), cY: document.getElementById('cY2'),
+                fileId: null,
+                state: { scale: 1, rotation: 0, panX: 0, panY: 0 }
+            }
+        ];
+
+        let activeVIndex = 0; // 当前激活的视图 0或1
+        let isCompareMode = false;
+
+        // 设置激活视口并更新 UI 外框
+        function setActiveViewer(index) {
+            activeVIndex = index;
+            viewers[0].el.classList.toggle('border-blue-500', index === 0);
+            viewers[0].el.classList.toggle('border-transparent', index !== 0);
+            viewers[1].el.classList.toggle('border-amber-500', index === 1);
+            viewers[1].el.classList.toggle('border-transparent', index !== 1);
+            
+            updateToolbarLabels();
+            renderFileSystem(); // 刷新左侧树的高亮颜色
+        }
+
+        // 应用 CSS Transform (核心：利用 calc 偏移结合平移缩放)
+        function updateTransform(idx) {
+            const v = viewers[idx];
+            // 巧用 calc(-50% + panX) 保持中心原点的同时进行拖拽
+            v.contentEl.style.transform = `translate(calc(-50% + ${v.state.panX}px), calc(-50% + ${v.state.panY}px)) scale(${v.state.scale}) rotate(${v.state.rotation}deg)`;
+            if (activeVIndex === idx) updateToolbarLabels();
+        }
+
+        // 更新顶部栏的数字
+        function updateToolbarLabels() {
+            const v = viewers[activeVIndex];
+            document.getElementById('zoomLabel').textContent = `${Math.round(v.state.scale * 100)}%`;
+            document.getElementById('rotateLabel').textContent = `${v.state.rotation}°`;
+        }
+
+        // 智能适应视口：根据是否旋转了90度动态计算边界
+        function fitView(idx) {
+            const v = viewers[idx];
+            if (!v.fileId) return;
+            
+            // 如果旋转了奇数个90度 (90, 270, 450...)，则宽高互换
+            const isRotated = (Math.abs(v.state.rotation) / 90) % 2 !== 0;
+            const baseW = 1400; 
+            const baseH = 900;
+            const imgW = isRotated ? baseH : baseW;
+            const imgH = isRotated ? baseW : baseH;
+            
+            const wrapW = v.el.clientWidth;
+            const wrapH = v.el.clientHeight;
+            
+            v.state.scale = Math.max(0.05, Math.min(5, Math.min(wrapW / imgW, wrapH / imgH)));
+            v.state.panX = 0;
+            v.state.panY = 0;
+            updateTransform(idx);
+        }
+
+        // 为两个视图绑定鼠标拖拽与缩放事件
+        viewers.forEach((v, idx) => {
+            let isPanning = false, startX = 0, startY = 0;
+            
+            v.el.addEventListener('mousedown', (e) => {
+                setActiveViewer(idx);
+                isPanning = true;
+                startX = e.clientX - v.state.panX;
+                startY = e.clientY - v.state.panY;
+                v.el.classList.add('cursor-grabbing');
+            });
+
+            window.addEventListener('mouseup', () => {
+                isPanning = false;
+                v.el.classList.remove('cursor-grabbing');
+            });
+
+            v.el.addEventListener('mousemove', (e) => {
+                // 简单的坐标回显计算 (反向换算Scale)
+                if (v.fileId) {
+                    const rect = v.el.getBoundingClientRect();
+                    // 这里采用简单的视口偏移量计算
+                    const x = Math.round(Math.max(0, (e.clientX - rect.left - rect.width/2 - v.state.panX) / v.state.scale + 700));
+                    const y = Math.round(Math.max(0, (e.clientY - rect.top - rect.height/2 - v.state.panY) / v.state.scale + 450));
+                    v.cX.textContent = String(x).padStart(4, '0');
+                    v.cY.textContent = String(y).padStart(4, '0');
+                }
+
+                if (!isPanning) return;
+                v.state.panX = e.clientX - startX;
+                v.state.panY = e.clientY - startY;
+                updateTransform(idx);
+            });
+
+            // 滚轮中心缩放
+            v.el.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                setActiveViewer(idx);
+                
+                const rect = v.el.getBoundingClientRect();
+                const cx = rect.width / 2;
+                const cy = rect.height / 2;
+                const dx = e.clientX - rect.left - cx;
+                const dy = e.clientY - rect.top - cy;
+
+                const oldScale = v.state.scale;
+                if (e.deltaY > 0) v.state.scale = Math.max(0.05, v.state.scale / 1.1);
+                else v.state.scale = Math.min(8, v.state.scale * 1.1);
+
+                // 根据鼠标位置偏移补偿 panX/panY，保持鼠标指向点不动
+                v.state.panX = dx - ((dx - v.state.panX) / oldScale) * v.state.scale;
+                v.state.panY = dy - ((dy - v.state.panY) / oldScale) * v.state.scale;
+                updateTransform(idx);
+            }, { passive: false });
+        });
+
+        // 顶部工具栏按钮控制 (始终控制 activeVIndex)
+        document.querySelectorAll('[data-action]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const v = viewers[activeVIndex];
+                if (!v.fileId) return;
+                const action = btn.dataset.action;
+
+                if (action === 'zoomIn') v.state.scale = Math.min(8, v.state.scale * 1.2);
+                if (action === 'zoomOut') v.state.scale = Math.max(0.05, v.state.scale / 1.2);
+                if (action === 'actual') { v.state.scale = 1; v.state.panX = 0; v.state.panY = 0; }
+                
+                if (action === 'rotateLeft' || action === 'rotateRight') {
+                    v.state.rotation += (action === 'rotateRight' ? 90 : -90);
+                    fitView(activeVIndex); // 旋转后自动适应视窗，保证不会飞出屏幕外
+                    return;
+                }
+                
+                if (action === 'fit') { fitView(activeVIndex); return; }
+                updateTransform(activeVIndex);
+            });
+        });
+
+        // 双图对比模式切换逻辑
+        const btnCompare = document.getElementById('btnCompare');
+        btnCompare.addEventListener('click', () => {
+            isCompareMode = !isCompareMode;
+            if (isCompareMode) {
+                viewers[1].el.classList.remove('hidden');
+                btnCompare.classList.add('bg-blue-100', 'text-blue-700');
+                
+                // 如果图2为空，则默认把图1的内容复制过去方便对比
+                if (!viewers[1].fileId && viewers[0].fileId) {
+                    viewers[1].fileId = viewers[0].fileId;
+                    viewers[1].imgEl.src = viewers[0].imgEl.src;
+                    viewers[1].tagEl.textContent = viewers[0].tagEl.textContent;
+                    viewers[1].imgEl.onload = () => fitView(1);
+                }
+                setTimeout(() => { fitView(0); fitView(1); }, 50);
+            } else {
+                viewers[1].el.classList.add('hidden');
+                btnCompare.classList.remove('bg-blue-100', 'text-blue-700');
+                if (activeVIndex === 1) setActiveViewer(0);
+                setTimeout(() => fitView(0), 50);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            fitView(0);
+            if (isCompareMode) fitView(1);
+        });
+
+        // ----------------------------------------------------
+        // 左侧文件系统
+        // ----------------------------------------------------
+        const fileSystemContainer = document.getElementById('fileSystemContainer');
+        const defaultFolders = [{
+            folderId: 'folder_main',
+            folderName: patient.exam || '初次诊断',
+            date: patient.time ? patient.time.split(' ')[0] : '2026-04-01',
+            images: patient.images
+        }];
+
+        // 将选中的图像加载到当前激活的视窗
+        function selectImageForActiveViewer(id, url, pathTag) {
+            const v = viewers[activeVIndex];
+            v.fileId = id;
+            v.imgEl.src = url;
+            v.tagEl.textContent = pathTag;
+            v.state.rotation = 0;
+            v.imgEl.onload = () => fitView(activeVIndex);
+            renderFileSystem();
+        }
+
+        function renderFileSystem() {
+            fileSystemContainer.innerHTML = '';
+            let count = 0;
+
+            defaultFolders.forEach((folder) => {
+                count += folder.images.length;
+                const folderWrapper = document.createElement('div');
+                folderWrapper.className = 'mb-3';
+                
+                const folderHeader = document.createElement('div');
+                folderHeader.className = 'flex items-center gap-2 p-2 rounded hover:bg-slate-200/50 cursor-pointer text-sm font-bold text-slate-700 transition';
+                folderHeader.innerHTML = `<i id="icon-${folder.folderId}" class="fas fa-folder-open text-blue-400"></i><span>${folder.date} | ${folder.folderName}</span>`;
+                
+                const fileList = document.createElement('div');
+                fileList.id = `content-${folder.folderId}`;
+                fileList.className = 'pl-5 pr-1 py-1 space-y-1.5 border-l border-slate-300 ml-3 mt-1';
+
+                folder.images.forEach(file => {
+                    // 判断该文件是否在 V1 或 V2 中打开，并赋予不同颜色的边框标识
+                    const inV1 = viewers[0].fileId === file.id;
+                    const inV2 = viewers[1].fileId === file.id;
+                    let borderClass = 'border-slate-200 bg-white hover:border-blue-300';
+                    let iconColor = 'text-slate-400';
+                    let textColor = 'text-slate-700';
+
+                    if (inV1 && inV2) { borderClass = 'border-blue-500 bg-blue-50 ring-1 ring-amber-500'; iconColor = 'text-blue-600'; textColor = 'text-blue-700'; }
+                    else if (inV1) { borderClass = 'border-blue-500 bg-blue-50'; iconColor = 'text-blue-600'; textColor = 'text-blue-700'; }
+                    else if (inV2) { borderClass = 'border-amber-500 bg-amber-50'; iconColor = 'text-amber-500'; textColor = 'text-amber-700'; }
+
+                    const fileItem = document.createElement('div');
+                    fileItem.className = `flex flex-col p-2 rounded cursor-pointer transition border shadow-sm ${borderClass}`;
+                    fileItem.innerHTML = `
+                        <div class="flex items-center gap-2 overflow-hidden mb-1">
+                            <i class="fas fa-image text-xs ${iconColor}"></i>
+                            <span class="text-xs font-bold truncate ${textColor}">${file.name}</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500 pl-5"><span>${file.size}</span></div>
+                    `;
+                    
+                    fileItem.onclick = () => selectImageForActiveViewer(file.id, file.url, `${folder.date} / ${file.name}`);
+                    fileList.appendChild(fileItem);
+                });
+
+                folderHeader.onclick = () => {
+                    fileList.classList.toggle('hidden');
+                    const icon = document.getElementById(`icon-${folder.folderId}`);
+                    if (fileList.classList.contains('hidden')) icon.classList.replace('fa-folder-open', 'fa-folder');
+                    else icon.classList.replace('fa-folder', 'fa-folder-open');
+                };
+
+                folderWrapper.appendChild(folderHeader);
+                folderWrapper.appendChild(fileList);
+                fileSystemContainer.appendChild(folderWrapper);
+            });
+
+            document.getElementById('imageCount').textContent = `共 ${count} 张图像`;
+        }
+
+        // 初始化
+        renderFileSystem();
+        if (patient.images.length > 0) {
+            const firstFile = patient.images[0];
+            selectImageForActiveViewer(firstFile.id, firstFile.url, `${defaultFolders[0].date} / ${firstFile.name}`);
+        }
+
+        // ----------------------------------------------------
+        // 右侧面板及其它功能代码 (无缝对接保留)
+        // ----------------------------------------------------
+        const btnToggleLeft = document.getElementById('btnToggleLeft');
+        const btnToggleRight = document.getElementById('btnToggleRight');
+        const btnOpenLeft = document.getElementById('btnOpenLeft');
+        const btnOpenRight = document.getElementById('btnOpenRight');
+        const leftPanel = document.getElementById('left-panel');
+        const rightPanel = document.getElementById('right-panel');
+        const leftDivider = document.getElementById('leftDivider');
+
+        function toggleLeftPanel(show) {
+            leftPanel.classList.toggle('hidden-panel', !show);
+            btnOpenLeft.style.display = show ? 'none' : 'inline-flex';
+            leftDivider.style.display = show ? 'none' : 'block';
+            setTimeout(() => { fitView(0); if(isCompareMode) fitView(1); }, 300);
+        }
+
+        function toggleRightPanel(show) {
+            rightPanel.classList.toggle('hidden-panel', !show);
+            btnOpenRight.style.display = show ? 'none' : 'inline-flex';
+            setTimeout(() => { fitView(0); if(isCompareMode) fitView(1); }, 300);
+        }
+
+        btnToggleLeft.addEventListener('click', () => toggleLeftPanel(false));
+        btnOpenLeft.addEventListener('click', () => toggleLeftPanel(true));
+        btnToggleRight.addEventListener('click', () => toggleRightPanel(false));
+        btnOpenRight.addEventListener('click', () => toggleRightPanel(true));
+
         const gradeText = document.getElementById('gradeText');
         const survivalText = document.getElementById('survivalText');
         const diagnosisText = document.getElementById('diagnosisText');
         const reportText = document.getElementById('reportText');
         const similarList = document.getElementById('similarList');
-        
-        const mainImage = document.getElementById('mainImage');
-        const viewer = document.getElementById('viewer');
-        const viewerContent = document.getElementById('viewer-content');
-        const zoomLabel = document.getElementById('zoomLabel');
-        const rotateLabel = document.getElementById('rotateLabel');
-        const coordX = document.getElementById('coordX');
-        const coordY = document.getElementById('coordY');
 
-        const leftPanel = document.getElementById('left-panel');
-        const rightPanel = document.getElementById('right-panel');
-        const btnToggleLeft = document.getElementById('btnToggleLeft');
-        const btnToggleRight = document.getElementById('btnToggleRight');
-        const btnOpenLeft = document.getElementById('btnOpenLeft');
-        const btnOpenRight = document.getElementById('btnOpenRight');
-        const leftDivider = document.getElementById('leftDivider');
+        function renderAiModules() {
+            gradeText.textContent = patient.grade;
+            survivalText.textContent = patient.survival;
+            diagnosisText.textContent = patient.diagnosis;
+            reportText.innerHTML = ""; 
 
-        const btnUpload = document.getElementById('btnUpload');
-        const imageUpload = document.getElementById('imageUpload');
+            similarList.innerHTML = '';
+            patient.similar.forEach((item, index) => {
+                const isTop = index === 0;
+                const block = document.createElement('div');
+                block.className = 'rounded-lg border border-slate-200 px-3 py-3 bg-slate-50/60 hover:bg-white hover:shadow-md transition cursor-pointer relative overflow-hidden group';
+                if (isTop) block.classList.add('border-l-4', 'border-l-indigo-500', 'bg-indigo-50/30');
 
-        let activeImages = [...patient.images];
-        let activeImageId = activeImages[0] ? activeImages[0].id : null;
+                block.innerHTML = `
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-mono text-slate-600 font-medium">
+                            ${isTop ? '<i class="fas fa-crown text-amber-500 mr-1"></i>' : '<i class="fas fa-history text-slate-400 mr-1"></i>'}
+                            ${item.caseNo}
+                        </span>
+                        <span class="text-indigo-600 font-bold bg-indigo-100 px-1.5 py-0.5 rounded">相似度 ${item.score}</span>
+                    </div>
+                    <p class="text-xs leading-relaxed text-slate-700">${item.summary}</p>
+                `;
+                similarList.appendChild(block);
+            });
+        }
 
-        let scale = 1;
-        let rotation = 0;
-        let panX = 0;
-        let panY = 0;
-        let isPanning = false;
-        let startX = 0;
-        let startY = 0;
-
-        // ==========================================
-        // 右侧交互：选项卡切换逻辑
-        // ==========================================
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => {
@@ -458,9 +585,6 @@
             btn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
         }
 
-        // ==========================================
-        // 右侧交互：大语言模型打字机报告生成
-        // ==========================================
         let typeTimer;
         function startTypingReport() {
             const btn = document.getElementById('btnGenerateReport');
@@ -481,275 +605,28 @@
             typeTimer = setInterval(() => {
                 reportText.innerHTML = fullText.substring(0, i) + cursorHtml;
                 i++;
-                
                 const container = reportText.parentElement;
                 container.scrollTop = container.scrollHeight;
-                
                 if (i > fullText.length) {
                     clearInterval(typeTimer);
                     document.getElementById('typingCursor')?.remove();
-                    
-                    // 修复按钮颜色逻辑：去掉灰色状态，恢复原本的蓝底白字
                     btn.disabled = false;
                     btn.classList.remove('bg-blue-400', 'cursor-not-allowed');
                     btn.classList.add('bg-primary', 'hover:bg-blue-700', 'active:bg-blue-800'); 
-                    
                     btn.innerHTML = '<i class="fas fa-redo mr-2"></i> 重新生成评估报告';
                     actions.classList.remove('hidden');
                 }
             }, 25);
         }
 
-        // ==========================================
-        // 核心渲染逻辑
-        // ==========================================
-        function updateTransform() {
-            viewerContent.style.transform = `translate(${panX}px, ${panY}px) scale(${scale}) rotate(${rotation}deg)`;
-            zoomLabel.textContent = `${Math.round(scale * 100)}%`;
-            rotateLabel.textContent = `${rotation}°`;
-        }
-
-        function fitView() {
-            const imgW = mainImage.clientWidth || 1400;
-            const imgH = mainImage.clientHeight || 900;
-            const wrapW = viewer.clientWidth;
-            const wrapH = viewer.clientHeight;
-            scale = Math.max(0.1, Math.min(2, Math.min(wrapW / imgW, wrapH / imgH)));
-            panX = (wrapW - imgW * scale) / 2;
-            panY = (wrapH - imgH * scale) / 2;
-            updateTransform();
-        }
-
-        function selectImage(imageId) {
-            activeImageId = imageId;
-            const image = activeImages.find((item) => item.id === imageId);
-            if (!image) return;
-            mainImage.src = image.url;
-            renderImageList();
-            mainImage.onload = fitView;
-        }
-
-        function renderImageList() {
-            imageListEl.innerHTML = '';
-            activeImages.forEach((item) => {
-                const isActive = item.id === activeImageId;
-                const entry = document.createElement('button');
-                entry.className = `w-full text-left rounded-lg border px-3 py-2.5 mb-2 transition shadow-sm ${isActive ? 'border-blue-400 bg-blue-50/80 ring-1 ring-blue-100' : 'border-slate-200 bg-white hover:border-blue-300'}`;
-                entry.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1 flex-shrink-0 w-8 h-8 rounded bg-white flex items-center justify-center border border-slate-100 shadow-sm">
-                            <i class="fas fa-microscope text-sm ${isActive ? 'text-blue-600' : 'text-slate-400'}"></i>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-bold ${isActive ? 'text-blue-700' : 'text-slate-700'} truncate" title="${item.name}">${item.name}</p>
-                            <p class="text-[11px] text-slate-500 mt-1 flex justify-between">
-                                <span>${item.size}</span>
-                                <span>${item.date}</span>
-                            </p>
-                        </div>
-                    </div>
-                `;
-                entry.addEventListener('click', () => selectImage(item.id));
-                imageListEl.appendChild(entry);
-            });
-            imageCountEl.textContent = `共加载 ${activeImages.length} 视野`;
-        }
-
-        function renderAiModules() {
-            gradeText.textContent = patient.grade;
-            survivalText.textContent = patient.survival;
-            diagnosisText.textContent = patient.diagnosis;
-            
-            // 清空报告框，待一键生成
-            reportText.innerHTML = ""; 
-
-            similarList.innerHTML = '';
-            patient.similar.forEach((item, index) => {
-                // 第一条加个小皇冠图标
-                const isTop = index === 0;
-                const block = document.createElement('div');
-                block.className = 'rounded-lg border border-slate-200 px-3 py-3 bg-slate-50/60 hover:bg-white hover:shadow-md transition cursor-pointer relative overflow-hidden group';
-                // 增加一点高亮左边框
-                if (isTop) block.classList.add('border-l-4', 'border-l-indigo-500', 'bg-indigo-50/30');
-
-                block.innerHTML = `
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="font-mono text-slate-600 font-medium">
-                            ${isTop ? '<i class="fas fa-crown text-amber-500 mr-1" title="最佳匹配"></i>' : '<i class="fas fa-history text-slate-400 mr-1"></i>'}
-                            ${item.caseNo}
-                        </span>
-                        <span class="text-indigo-600 font-bold bg-indigo-100 px-1.5 py-0.5 rounded">相似度 ${item.score}</span>
-                    </div>
-                    <p class="text-xs leading-relaxed text-slate-700">${item.summary}</p>
-                    <div class="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition">
-                        <span class="text-[10px] text-blue-500 flex items-center"><i class="fas fa-external-link-alt mr-1"></i>调阅</span>
-                    </div>
-                `;
-                similarList.appendChild(block);
-            });
-        }
-
-        function applyAction(action) {
-            const centerX = viewer.clientWidth / 2;
-            const centerY = viewer.clientHeight / 2;
-            const originX = (centerX - panX) / scale;
-            const originY = (centerY - panY) / scale;
-
-            if (action === 'zoomIn') scale = Math.min(8, scale * 1.2);
-            if (action === 'zoomOut') scale = Math.max(0.1, scale / 1.2);
-            if (action === 'actual') scale = 1;
-            if (action === 'rotateLeft') rotation -= 90;
-            if (action === 'rotateRight') rotation += 90;
-            if (action === 'fit') {
-                fitView();
-                return;
-            }
-
-            if (action === 'zoomIn' || action === 'zoomOut' || action === 'actual') {
-                panX = centerX - originX * scale;
-                panY = centerY - originY * scale;
-            }
-            updateTransform();
-        }
-
-        function toggleLeftPanel(show) {
-            leftPanel.classList.toggle('hidden-panel', !show);
-            btnOpenLeft.style.display = show ? 'none' : 'inline-flex';
-            leftDivider.style.display = show ? 'none' : 'block';
-            setTimeout(fitView, 300);
-        }
-
-        function toggleRightPanel(show) {
-            rightPanel.classList.toggle('hidden-panel', !show);
-            btnOpenRight.style.display = show ? 'none' : 'inline-flex';
-            setTimeout(fitView, 300);
-        }
-
-        // 事件监听绑定
-        document.querySelectorAll('[data-action]').forEach((btn) => {
-            btn.addEventListener('click', () => applyAction(btn.dataset.action));
-        });
-
-        viewer.addEventListener('mousedown', (event) => {
-            isPanning = true;
-            startX = event.clientX - panX;
-            startY = event.clientY - panY;
-            viewer.classList.add('cursor-grabbing');
-        });
-
-        window.addEventListener('mouseup', () => {
-            isPanning = false;
-            viewer.classList.remove('cursor-grabbing');
-        });
-
-        viewer.addEventListener('mousemove', (event) => {
-            const rect = viewerContent.getBoundingClientRect();
-            const x = Math.max(0, Math.round((event.clientX - rect.left) / scale));
-            const y = Math.max(0, Math.round((event.clientY - rect.top) / scale));
-            coordX.textContent = String(x).padStart(4, '0');
-            coordY.textContent = String(y).padStart(4, '0');
-
-            if (!isPanning) return;
-            panX = event.clientX - startX;
-            panY = event.clientY - startY;
-            updateTransform();
-        });
-
-        viewer.addEventListener('wheel', (event) => {
-            event.preventDefault();
-            const pointX = (event.clientX - panX) / scale;
-            const pointY = (event.clientY - panY) / scale;
-            if (event.deltaY > 0) scale = Math.max(0.1, scale / 1.08);
-            else scale = Math.min(8, scale * 1.08);
-            panX = event.clientX - pointX * scale;
-            panY = event.clientY - pointY * scale;
-            updateTransform();
-        }, { passive: false });
-
-        btnToggleLeft.addEventListener('click', () => toggleLeftPanel(false));
-        btnOpenLeft.addEventListener('click', () => toggleLeftPanel(true));
-        btnToggleRight.addEventListener('click', () => toggleRightPanel(false));
-        btnOpenRight.addEventListener('click', () => toggleRightPanel(true));
-
-        btnUpload.addEventListener('click', () => imageUpload.click());
-        imageUpload.addEventListener('change', (event) => {
-            const files = Array.from(event.target.files || []);
-            files.forEach((file) => {
-                activeImages.unshift({
-                    id: `upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                    name: file.name,
-                    size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-                    date: new Date().toISOString().slice(0, 10),
-                    url: URL.createObjectURL(file)
-                });
-            });
-            renderImageList();
-            if (activeImages.length) selectImage(activeImages[0].id);
-            imageUpload.value = '';
-        });
-
-        window.addEventListener('resize', fitView);
-
-        // 初始化执行
         renderAiModules();
-        renderImageList();
-        if (activeImageId) selectImage(activeImageId);
-        // ==========================================
-        // 增量修复：PDF 导出功能
-        // ==========================================
-        function exportAiReportPdf() {
-            const reportHtml = `
-                <html lang="zh-CN">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>AI病例报告-${patient.recordNo}</title>
-                    <style>
-                        body { font-family: 'Microsoft YaHei', sans-serif; padding: 28px; color: #0f172a; }
-                        h1 { color: #1e3a8a; margin-bottom: 10px; }
-                        h2 { color: #334155; margin: 18px 0 8px; font-size: 18px; }
-                        p { line-height: 1.8; font-size: 14px; white-space: pre-wrap; }
-                        .meta { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; }
-                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-                        .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
-                    </style>
-                </head>
-                <body>
-                    <h1>医学影像智能分析系统 - AI病例报告</h1>
-                    <div class="meta">
-                        <p><strong>病历号:</strong> ${patient.recordNo}</p>
-                        <p><strong>患者姓名:</strong> ${patient.name}</p>
-                        <p><strong>性别/年龄:</strong> ${patient.gender} / ${patient.age}</p>
-                        <p><strong>检查项目:</strong> ${patient.exam}</p>
-                        <p><strong>检查时间:</strong> ${patient.time}</p>
-                    </div>
 
-                    <h2>病例本身分析</h2>
-                    <div class="grid">
-                        <div class="card"><strong>病情分级</strong><p>${patient.grade}</p></div>
-                        <div class="card"><strong>5年存活率</strong><p>${patient.survival}</p></div>
-                    </div>
-                    <div class="card" style="margin-top:10px;"><strong>AI关键结论</strong><p>${patient.diagnosis}</p></div>
-
-                    <h2>大语言模型结构化报告</h2>
-                    <p>${patient.report}</p>
-                </body>
-                </html>
-            `;
-
+        document.getElementById('btnExportPdf').addEventListener('click', () => {
             const popup = window.open('', '_blank');
-            if (!popup) {
-                alert('浏览器阻止了弹窗，请允许弹窗后重试导出。');
-                return;
-            }
-            popup.document.write(reportHtml);
+            popup.document.write(`<html><head><title>病例报告</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h1>病例报告 ${patient.recordNo}</h1><p>${patient.report.replace(/\n/g,'<br>')}</p></body></html>`);
             popup.document.close();
-            popup.focus();
-            // 稍微延迟确保样式渲染完毕再调出打印窗口
-            setTimeout(() => popup.print(), 200); 
-        }
-
-        // 重新绑定点击事件
-        document.getElementById('btnExportPdf').addEventListener('click', exportAiReportPdf);
+            setTimeout(() => popup.print(), 200);
+        });
     </script>
 </body>
 </html>

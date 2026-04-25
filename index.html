@@ -9,31 +9,19 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#1d4ed8',
-                        navbg: '#1e3a8a',
-                        surface: '#eef2ff'
-                    },
-                    fontFamily: {
-                        sans: ['Noto Sans SC', 'Microsoft YaHei', 'Segoe UI', 'sans-serif']
-                    }
+                    colors: { primary: '#1d4ed8', navbg: '#1e3a8a', surface: '#eef2ff' },
+                    fontFamily: { sans: ['Noto Sans SC', 'Microsoft YaHei', 'Segoe UI', 'sans-serif'] }
                 }
             }
         };
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background: linear-gradient(180deg, #e9efff 0%, #f4f7ff 40%, #f8fafc 100%);
-        }
-
-        .frost-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-        }
+        body { background: linear-gradient(180deg, #e9efff 0%, #f4f7ff 40%, #f8fafc 100%); }
+        .frost-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); }
     </style>
 </head>
-<body class="text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="text-slate-800 font-sans min-h-screen flex flex-col relative">
     <nav class="h-14 bg-navbg text-white flex items-center justify-between px-4 sm:px-6 shadow-md z-30 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-inner">
@@ -41,7 +29,6 @@
             </div>
             <h1 class="text-xl font-bold tracking-wide">医学影像智能分析系统</h1>
         </div>
-
         <div class="flex items-center gap-3 cursor-pointer hover:bg-blue-800 p-1.5 rounded transition">
             <img src="https://ui-avatars.com/api/?name=Dr.+Wang&background=1d4ed8&color=fff" alt="User" class="w-8 h-8 rounded-full border-2 border-blue-300">
             <div class="flex flex-col hidden sm:flex">
@@ -70,13 +57,17 @@
                             <i class="fas fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
                             <input id="filterName" type="text" placeholder="患者姓名" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <div class="relative xl:col-span-1">
-                            <i class="fas fa-vial absolute left-3 top-3 text-slate-400 text-sm"></i>
-                            <input id="filterExam" type="text" placeholder="检查项目" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="relative xl:col-span-1">
-                            <i class="fas fa-calendar-day absolute left-3 top-3 text-slate-400 text-sm"></i>
-                            <input id="filterTime" type="text" placeholder="时间(如 2026-04)" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="relative xl:col-span-2">
+                            <i class="fas fa-vial absolute left-3 top-3 text-slate-400 text-sm z-10"></i>
+                            <select id="filterProject" class="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white">
+                                <option value="">全部癌症种类 + 检查项目</option>
+                                <option value="乳腺癌 - 乳腺穿刺活检 (HE)">乳腺癌 - 乳腺穿刺活检 (HE)</option>
+                                <option value="胃癌 - 胃黏膜活检">胃癌 - 胃黏膜活检</option>
+                                <option value="肺癌 - 肺组织病理切片">肺癌 - 肺组织病理切片</option>
+                                <option value="肝癌 - 肝穿刺组织学检查">肝癌 - 肝穿刺组织学检查</option>
+                                <option value="前列腺癌 - 前列腺穿刺活检">前列腺癌 - 前列腺穿刺活检</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
                         </div>
                         <button id="btnReset" class="xl:col-span-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
                             <i class="fas fa-rotate-left mr-2"></i>清空筛选
@@ -86,13 +77,15 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[880px]">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                             <th class="px-6 py-4 font-medium">病历号</th>
                             <th class="px-6 py-4 font-medium">患者姓名</th>
-                            <th class="px-6 py-4 font-medium">检查项目</th>
-                            <th class="px-6 py-4 font-medium">检查时间</th>
+                            <th class="px-6 py-4 font-medium">癌症种类+检查项目</th>
+                            <th class="px-6 py-4 font-medium">最新时间</th>
+                            <th class="px-6 py-4 font-medium">状态</th>
+                            <th class="px-6 py-4 font-medium">病情等级</th>
                             <th class="px-6 py-4 font-medium">操作</th>
                         </tr>
                     </thead>
@@ -107,44 +100,97 @@
         </section>
     </main>
 
+    <div id="editModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-800">患者信息与影像导入</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div>
+                    <h4 class="text-sm font-bold text-slate-600 mb-3 border-l-4 border-blue-500 pl-2">患者基本信息</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">患者姓名</label>
+                            <input type="text" id="modalName" disabled class="w-full border border-slate-200 bg-slate-100 rounded px-3 py-2 text-sm text-slate-500 cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">病历号</label>
+                            <input type="text" id="modalRecord" disabled class="w-full border border-slate-200 bg-slate-100 rounded px-3 py-2 text-sm text-slate-500 cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="border-slate-100">
+                
+                <div>
+                    <h4 class="text-sm font-bold text-slate-600 mb-3 border-l-4 border-emerald-500 pl-2">本地影像归档导入</h4>
+                    <div class="grid grid-cols-1 gap-4 mb-3">
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">检查名称标签 <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <select id="uploadExamName" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 appearance-none bg-white">
+                                    <option value="">请选择检查项目标签</option>
+                                    <option value="乳腺癌 - 乳腺穿刺活检 (HE)">乳腺癌 - 乳腺穿刺活检 (HE)</option>
+                                    <option value="胃癌 - 胃黏膜活检">胃癌 - 胃黏膜活检</option>
+                                    <option value="肺癌 - 肺组织病理切片">肺癌 - 肺组织病理切片</option>
+                                    <option value="肝癌 - 肝穿刺组织学检查">肝癌 - 肝穿刺组织学检查</option>
+                                    <option value="前列腺癌 - 前列腺穿刺活检">前列腺癌 - 前列腺穿刺活检</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-3 top-3 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">检查时间标签 <span class="text-red-500">*</span></label>
+                            <input type="date" id="uploadExamDate" class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">选择影像文件 (支持多选) <span class="text-red-500">*</span></label>
+                        <input id="imageUpload" type="file" accept="image/*, .dcm" multiple class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-300 rounded cursor-pointer">
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 bg-white border border-slate-300 rounded shadow-sm text-sm text-slate-600 hover:bg-slate-50 transition">取消</button>
+                <button onclick="saveModalData()" class="px-4 py-2 bg-blue-600 rounded shadow-sm text-sm text-white font-medium hover:bg-blue-700 transition">保存并归档</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const patients = [
-            { id: 'p001', recordNo: 'BL-2026-0418', name: '李*华', exam: '乳腺穿刺活检 (HE)', time: '2026-04-24 14:20' },
-            { id: 'p002', recordNo: 'BL-2026-0412', name: '王*强', exam: '胃黏膜活检', time: '2026-04-23 10:05' },
-            { id: 'p003', recordNo: 'BL-2026-0409', name: '陈*宁', exam: '肺组织病理切片', time: '2026-04-22 09:40' },
-            { id: 'p004', recordNo: 'BL-2026-0401', name: '赵*兰', exam: '肝穿刺组织学检查', time: '2026-04-20 16:30' },
-            { id: 'p005', recordNo: 'BL-2026-0328', name: '周*凯', exam: '前列腺穿刺活检', time: '2026-04-18 08:20' }
+        let patients = [
+            { id: 'p001', recordNo: 'BL-2026-0418', name: '李*华', project: '乳腺癌 - 乳腺穿刺活检 (HE)', time: '2026-04-24 14:20', status: 'analyzed', severity: 3 },
+            { id: 'p002', recordNo: 'BL-2026-0412', name: '王*强', project: '胃癌 - 胃黏膜活检', time: '2026-04-23 10:05', status: 'analyzing', severity: null },
+            { id: 'p003', recordNo: 'BL-2026-0409', name: '陈*宁', project: '肺癌 - 肺组织病理切片', time: '2026-04-22 09:40', status: 'unanalyzed', severity: null },
+            { id: 'p004', recordNo: 'BL-2026-0401', name: '赵*兰', project: '肝癌 - 肝穿刺组织学检查', time: '2026-04-20 16:30', status: 'analyzed', severity: 2 },
+            { id: 'p005', recordNo: 'BL-2026-0328', name: '周*凯', project: '前列腺癌 - 前列腺穿刺活检', time: '2026-04-18 08:20', status: 'analyzed', severity: 4 }
         ];
+
+        let currentEditingId = null;
 
         const tableBody = document.getElementById('tableBody');
         const summary = document.getElementById('summary');
         const emptyState = document.getElementById('emptyState');
         const filterRecord = document.getElementById('filterRecord');
         const filterName = document.getElementById('filterName');
-        const filterExam = document.getElementById('filterExam');
-        const filterTime = document.getElementById('filterTime');
+        const filterProject = document.getElementById('filterProject');
         const btnReset = document.getElementById('btnReset');
+        const editModal = document.getElementById('editModal');
 
-        function parseDate(v) {
-            return new Date(v.replace(' ', 'T')).getTime();
-        }
-
-        function sortedPatients(list) {
-            return [...list].sort((a, b) => parseDate(b.time) - parseDate(a.time));
-        }
+        function parseDate(v) { return new Date(v.replace(' ', 'T')).getTime(); }
+        function sortedPatients(list) { return [...list].sort((a, b) => parseDate(b.time) - parseDate(a.time)); }
 
         function getFilteredPatients() {
             const qRecord = filterRecord.value.trim().toLowerCase();
             const qName = filterName.value.trim().toLowerCase();
-            const qExam = filterExam.value.trim().toLowerCase();
-            const qTime = filterTime.value.trim().toLowerCase();
+            const qProject = filterProject.value.trim().toLowerCase();
 
             return sortedPatients(patients).filter((item) => {
                 const okRecord = item.recordNo.toLowerCase().includes(qRecord);
                 const okName = item.name.toLowerCase().includes(qName);
-                const okExam = item.exam.toLowerCase().includes(qExam);
-                const okTime = item.time.toLowerCase().includes(qTime);
-                return okRecord && okName && okExam && okTime;
+                const okProject = item.project.toLowerCase().includes(qProject);
+                return okRecord && okName && okProject;
             });
         }
 
@@ -157,33 +203,83 @@
             } else {
                 emptyState.classList.add('hidden');
                 list.forEach((item) => {
+                    let statusHtml = '';
+                    if (item.status === 'unanalyzed') {
+                        statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-500 text-xs font-bold border border-slate-200"><i class="fas fa-clock"></i> 未分析</span>`;
+                    } else if (item.status === 'analyzing') {
+                        statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200"><i class="fas fa-spinner fa-spin"></i> 分析中</span>`;
+                    } else if (item.status === 'analyzed') {
+                        statusHtml = `<a href="analyze.html?patient=${encodeURIComponent(item.id)}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 hover:shadow-sm transition cursor-pointer text-decoration-none"><i class="fas fa-check-circle"></i> 已分析 (进入)</a>`;
+                    }
+
+                    let severityHtml = '<span class="text-slate-400">-</span>';
+                    if (item.status === 'analyzed' && item.severity) {
+                        if (item.severity === 1) severityHtml = `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">轻度 (I级)</span>`;
+                        else if (item.severity === 2) severityHtml = `<span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">中度 (II级)</span>`;
+                        else severityHtml = `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">重度 (III/IV级)</span>`;
+                    }
+
                     const tr = document.createElement('tr');
                     tr.className = 'border-b border-slate-100 hover:bg-blue-50/40 transition';
                     tr.innerHTML = `
                         <td class="px-6 py-4 text-slate-700 font-mono">${item.recordNo}</td>
-                        <td class="px-6 py-4 text-slate-700">${item.name}</td>
-                        <td class="px-6 py-4 text-slate-700">${item.exam}</td>
-                        <td class="px-6 py-4 text-slate-600">${item.time}</td>
+                        <td class="px-6 py-4 text-slate-700 font-bold">${item.name}</td>
+                        <td class="px-6 py-4 text-slate-700 text-xs">${item.project}</td>
+                        <td class="px-6 py-4 text-slate-600 font-mono text-xs">${item.time}</td>
+                        <td class="px-6 py-4">${statusHtml}</td>
+                        <td class="px-6 py-4">${severityHtml}</td>
                         <td class="px-6 py-4">
-                            <a href="analyze.html?patient=${encodeURIComponent(item.id)}" class="inline-block px-4 py-2 bg-primary text-white rounded-md shadow hover:bg-blue-700 transition font-medium">进入分析</a>
+                            <button onclick="openModal('${item.id}')" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rounded hover:bg-slate-50 hover:text-blue-600 transition text-xs font-medium shadow-sm"><i class="fas fa-folder-plus mr-1"></i>归档影像</button>
                         </td>
                     `;
                     tableBody.appendChild(tr);
                 });
             }
-
             summary.textContent = `共 ${list.length} 条病例`;
         }
 
-        [filterRecord, filterName, filterExam, filterTime].forEach((el) => {
+        function openModal(id) {
+            currentEditingId = id;
+            const p = patients.find(x => x.id === id);
+            document.getElementById('modalName').value = p.name;
+            document.getElementById('modalRecord').value = p.recordNo;
+            
+            document.getElementById('uploadExamName').value = '';
+            document.getElementById('uploadExamDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('imageUpload').value = '';
+
+            editModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            editModal.classList.add('hidden');
+            currentEditingId = null;
+        }
+
+        function saveModalData() {
+            const examName = document.getElementById('uploadExamName').value;
+            const examDate = document.getElementById('uploadExamDate').value;
+            const files = document.getElementById('imageUpload').files;
+
+            if (files.length > 0) {
+                if(!examName || !examDate) {
+                    return alert('上传影像时，必须填写【检查名称标签】和【检查时间标签】！');
+                }
+                alert(`模拟上传成功：已归档 ${files.length} 张影像，标签：[${examDate} | ${examName}]`);
+            }
+            closeModal();
+            renderTable();
+        }
+
+        [filterRecord, filterName, filterProject].forEach((el) => {
             el.addEventListener('input', renderTable);
+            el.addEventListener('change', renderTable);
         });
 
         btnReset.addEventListener('click', () => {
             filterRecord.value = '';
             filterName.value = '';
-            filterExam.value = '';
-            filterTime.value = '';
+            filterProject.value = '';
             renderTable();
         });
 
