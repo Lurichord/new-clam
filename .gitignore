@@ -1,0 +1,8 @@
+**/.DS_Store
+__pycache__/
+notebooks
+DATA_DIRECTOR/
+RESULTS_DIR/
+FEATURES_DIR/
+log.md
+docs/
